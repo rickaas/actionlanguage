@@ -1,2 +1,4 @@
 *.jar
 *.rtree
+/gen-code
+/alng_scripts/generated
