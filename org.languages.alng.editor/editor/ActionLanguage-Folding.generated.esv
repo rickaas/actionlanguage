@@ -23,5 +23,6 @@ folding Default folding definitions
   Start.Module
   FunctionDecl.FunctionDecl
   Statement.Declaration
+  OptExp1
   FunctionDecl.FunctionDeclVoid
   Definition.Entity

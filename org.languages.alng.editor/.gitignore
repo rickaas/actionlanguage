@@ -1,0 +1,6 @@
+/utils
+/.cache
+/editor/java/trans
+*.generated.esv
+*.jar
+*.rtree
