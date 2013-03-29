@@ -91,7 +91,7 @@ public class ExtractOriginTests {
 		boolean b = HybridInterpreterHelper.safeInvoke(i, "origin-location");
 		Assert.assertTrue(b);
 		Assert.assertNotNull(i.current());
-		Assert.assertEquals("(0,0,7,0)", i.current().toString());
+		Assert.assertEquals("(0,0,7,0)", i.current().toString()); // FIXME: result should indeed be (0,0,7,0)
 		
 		i.setCurrent(justPrint.getFunctionDeclVoid());
 		b = HybridInterpreterHelper.safeInvoke(i, "origin-location");
