@@ -1,0 +1,17 @@
+module multiplereturn
+
+main foo;
+
+function void foo()
+{
+    system.print(global.bar());
+}
+
+function String bar() {
+    Boolean isValid := false;
+    if (isValid) {
+        return "Foo";
+    } else {
+        return "bar";
+    }
+}

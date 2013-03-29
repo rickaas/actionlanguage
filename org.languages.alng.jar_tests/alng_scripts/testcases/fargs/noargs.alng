@@ -1,0 +1,8 @@
+module noargs
+
+main bar;
+
+function void foo()
+{
+    global.print("foo");
+}

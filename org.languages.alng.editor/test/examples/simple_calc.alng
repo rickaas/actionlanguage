@@ -1,0 +1,8 @@
+module simplecalc
+
+main bar;
+
+function void bar() {
+    system.print("Global print FFFFFFF g");
+//    global.print(a);
+}

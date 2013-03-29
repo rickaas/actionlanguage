@@ -1,0 +1,24 @@
+Module(
+  "example"
+, [ Main("main")
+  , FunctionDeclVoid(
+      "main"
+    , []
+    , [ AssignVar("bar", Plus(Int("5"), Int("6")))
+      , AssignVar(
+          "baz"
+        , FunctionCall(None(), "baz", FunctionArguments([Var("bar")]))
+        )
+      , AssignVar("result", Plus(Var("baz"), Var("bar")))
+      , ExprStatement(FunctionCall(None(), "print", FunctionArguments([Var("result")])))
+      ]
+    )
+  , FunctionDeclVoid(
+      "baz"
+    , [Argdef(Type("Integer"), "value")]
+    , [ AssignVar("bar", Plus(Var("value"), Int("22")))
+      , ReturnValue(Var("bar"))
+      ]
+    )
+  ]
+)

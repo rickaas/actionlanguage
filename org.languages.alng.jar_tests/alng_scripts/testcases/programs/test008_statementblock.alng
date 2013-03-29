@@ -1,0 +1,20 @@
+module statementblock
+
+main foo;
+
+function void foo() {
+    Boolean b := false;
+    {
+        Integer i := 0;
+        b := false;
+        system.print(i);
+    }
+    {
+        Integer i := 1;
+        system.print(i);
+        b := true;
+    }
+    Integer i := 3;
+    system.print(i);
+    return;
+}

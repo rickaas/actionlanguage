@@ -1,0 +1,36 @@
+module ifblock
+main foo ;
+function void foo ( ) {
+    try
+    {
+      debug.enter( "alng_scripts/testcases/programs/test005_ifblock.alng" , "5,0,16,0" , "foo" ) ;
+      debug.step( "alng_scripts/testcases/programs/test005_ifblock.alng" , "6,4,6,22" ) ;
+      Boolean b := false ;
+      debug.var( "alng_scripts/testcases/programs/test005_ifblock.alng" , "6,4,6,22" , "b" , b) ;
+      debug.step( "alng_scripts/testcases/programs/test005_ifblock.alng" , "7,4,12,4" ) ;
+      if ( b )
+      {
+        debug.step( "alng_scripts/testcases/programs/test005_ifblock.alng" , "8,8,8,18" ) ;
+        b := false ;
+        debug.var( "alng_scripts/testcases/programs/test005_ifblock.alng" , "8,8,8,18" , "b" , b) ;
+        debug.step( "alng_scripts/testcases/programs/test005_ifblock.alng" , "9,8,9,28" ) ;
+        system.print( "True" ) ;
+      }
+      else
+      {
+        debug.step( "alng_scripts/testcases/programs/test005_ifblock.alng" , "11,8,11,29" ) ;
+        system.print( "False" ) ;
+      }
+      debug.step( "alng_scripts/testcases/programs/test005_ifblock.alng" , "13,4,13,13" ) ;
+      b := true ;
+      debug.var( "alng_scripts/testcases/programs/test005_ifblock.alng" , "13,4,13,13" , "b" , b) ;
+      debug.step( "alng_scripts/testcases/programs/test005_ifblock.alng" , "14,4,14,19" ) ;
+      system.print( b ) ;
+      debug.step( "alng_scripts/testcases/programs/test005_ifblock.alng" , "15,4,15,10" ) ;
+      return ;
+    }
+    finally
+    {
+      debug.exit( "alng_scripts/testcases/programs/test005_ifblock.alng" , "5,0,16,0" , "foo" ) ;
+    }
+}

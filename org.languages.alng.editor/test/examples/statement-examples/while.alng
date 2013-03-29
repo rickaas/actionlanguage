@@ -1,0 +1,18 @@
+module example
+
+main bar;
+
+function void bar()
+{
+    bar2(3);
+}
+
+function Integer bar2(Integer thing) {
+    while (thing > 0)
+    {
+        thing := thing - 1;
+        system.print("iter" + thing);
+    }
+    system.print("Done");
+    return thing;
+}

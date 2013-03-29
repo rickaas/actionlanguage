@@ -1,0 +1,122 @@
+module replace-debug-aterm
+
+language ActionLanguage
+
+test flatted single DebugStep at end
+  ![
+    Assign(Type("Boolean"), "b", Bool("false"))
+   ,Assign(Type("Boolean"), "b", Bool("false"))
+   ,DebugStep(Call("debug", "baz", []), Call("normal", "baz", []))
+  ]
+  ; innermost(replace-debug-aterms)
+    =>
+    [Assign(Type("Boolean"),"b",Bool("false"))
+    ,Assign(Type("Boolean"),"b",Bool("false"))
+    ,Call("debug","baz",[])
+    ,Call("normal","baz",[])
+     ]
+     
+test flatted single DebugStep in middle
+  ![
+    Assign(Type("Boolean"), "b", Bool("false"))
+   ,DebugStep(Call("debug", "baz", []), Call("normal", "baz", []))
+   ,Assign(Type("Boolean"), "b", Bool("false"))
+  ]
+  ; innermost(replace-debug-aterms)
+    =>
+    [Assign(Type("Boolean"),"b",Bool("false"))
+    ,Call("debug","baz",[])
+    ,Call("normal","baz",[])
+    ,Assign(Type("Boolean"),"b",Bool("false"))
+     ]
+
+test flatted single DebugStep at start
+  ![
+    DebugStep(Call("debug", "baz", []), Call("normal", "baz", []))
+   ,Assign(Type("Boolean"), "b", Bool("false"))
+   ,Assign(Type("Boolean"), "b", Bool("false"))
+  ]
+  ; innermost(replace-debug-aterms)
+    =>
+    [
+     Call("debug","baz",[])
+    ,Call("normal","baz",[])
+    ,Assign(Type("Boolean"),"b",Bool("false"))
+    ,Assign(Type("Boolean"),"b",Bool("false"))
+     ]
+     
+test flatted multiple DebugSteps 1
+  ![
+    Assign(Type("Boolean"), "b", Bool("false"))
+   ,Assign(Type("Boolean"), "b", Bool("false"))
+   ,DebugStep(Call("debug", "1", []), Call("normal", "1", []))
+   ,DebugStep(Call("debug", "2", []), Call("normal", "2", []))
+  ]
+  ; innermost(replace-debug-aterms)
+    =>
+    [Assign(Type("Boolean"),"b",Bool("false"))
+    ,Assign(Type("Boolean"),"b",Bool("false"))
+    ,Call("debug","1",[])
+    ,Call("normal","1",[])
+    ,Call("debug","2",[])
+    ,Call("normal","2",[])
+     ]
+     
+test flatted multiple DebugSteps 2
+  ![
+    DebugStep(Call("debug", "1", []), Call("normal", "1", []))
+   ,Assign(Type("Boolean"), "b", Bool("false"))
+   ,Assign(Type("Boolean"), "b", Bool("false"))
+   ,DebugStep(Call("debug", "2", []), Call("normal", "2", []))
+  ]
+  ; innermost(replace-debug-aterms)
+    =>
+    [
+     Call("debug","1",[])
+    ,Call("normal","1",[])
+    ,Assign(Type("Boolean"),"b",Bool("false"))
+    ,Assign(Type("Boolean"),"b",Bool("false"))
+    ,Call("debug","2",[])
+    ,Call("normal","2",[])
+     ]
+     
+test flatted nested list with multiple DebugSteps 1
+  ![ DebugStep(
+           DebugSystemCall("step", "fo1")
+          , Assign(Type("Boolean"), "b", Bool("false"))
+        )
+        ,
+        DebugStep(
+            DebugSystemCall("step", "fo2")
+	      , If(
+	          Var("b")
+	        , [ DebugStep(
+	               DebugSystemCall("step", "fo3")
+	              , GlobalCall("baz", [])
+	            )
+	          ]
+	        , [ DebugStep(
+	               DebugSystemCall("step", "fo4")
+	              , GlobalCall("bar", [])
+	            )
+	          ]
+	        )
+        )
+       ]
+
+  ; innermost(replace-debug-aterms)
+    =>
+    [
+        DebugSystemCall("step","fo1")
+       ,Assign(Type("Boolean"),"b",Bool("false"))
+       ,DebugSystemCall("step","fo2")
+       ,If(
+            Var("b")
+            ,[ DebugSystemCall("step","fo3")
+              ,GlobalCall("baz",[])]
+            ,[ DebugSystemCall("step","fo4")
+              ,GlobalCall("bar",[])
+             ]
+          )
+    ]
+     

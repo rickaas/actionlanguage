@@ -1,0 +1,8 @@
+module f1
+
+function void bar() {
+    global.print("Global print");
+    User u := new User;
+    String a := u.baz();
+    global.print(a);
+}

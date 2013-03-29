@@ -1,0 +1,20 @@
+module test002
+
+language ActionLanguage
+
+test 002 
+!Module("assigninblock",[
+    Main("bar"),FunctionDeclVoid("bar",[],[
+        ExprStatement(
+            DebugSystemCall("step",FunctionArguments([String("\"alng_scripts/testcases/programs/test002_assigninblock.alng\""),String("\"6,4,6,22\"")])))
+       ,Declaration(Type("Boolean"),"b",Some(Bool("false"))),ExprStatement(DebugSystemCall("var",FunctionArguments([String("\"alng_scripts/testcases/programs/test002_assigninblock.alng\""),String("\"6,4,6,22\""),String("\"b\"")])))
+        ,StatementBlock([ExprStatement(DebugSystemCall("step",FunctionArguments([String("\"alng_scripts/testcases/programs/test002_assigninblock.alng\""),String("\"8,8,8,25\"")])))
+         ,ExprStatement(GlobalCall("print",FunctionArguments([String("\"b\"")]))),ExprStatement(DebugSystemCall("step",FunctionArguments([String("\"alng_scripts/testcases/programs/test002_assigninblock.alng\""),String("\"9,8,9,18\"")])))
+          ,AssignVar("b",Bool("false"))
+           ,ExprStatement(DebugSystemCall("var",FunctionArguments([String("\"alng_scripts/testcases/programs/test002_assigninblock.alng\""),String("\"9,8,9,18\""),String("\"b\"")])))])
+           ,StatementBlock([ExprStatement(DebugSystemCall("step",FunctionArguments([String("\"alng_scripts/testcases/programs/test002_assigninblock.alng\""),String("\"12,8,12,17\"")])))
+            ,AssignVar("b",Bool("true"))
+             ,ExprStatement(DebugSystemCall("var",FunctionArguments([String("\"alng_scripts/testcases/programs/test002_assigninblock.alng\""),String("\"12,8,12,17\""),String("\"b\"")])))])
+              ,ExprStatement(DebugSystemCall("step",FunctionArguments([String("\"alng_scripts/testcases/programs/test002_assigninblock.alng\""),String("\"14,4,14,19\"")])))
+               ,ExprStatement(GlobalCall("print",FunctionArguments([Var("b")])))])])
+ ;debug;pp-actionlanguage-string

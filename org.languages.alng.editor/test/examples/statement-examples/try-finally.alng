@@ -1,0 +1,12 @@
+module example
+
+main bar;
+
+function Integer bar() {
+    try {
+        system.print("try");
+        return 2;
+    } finally {
+        system.print("finally");
+    }
+}

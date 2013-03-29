@@ -1,0 +1,386 @@
+module toolchain
+
+imports
+  libstratego-lib
+  libstratego-gpp
+  libstratego-aterm
+  include/ActionLanguage
+  lib/editor-common.generated
+  check
+  generate
+  refactor
+  util
+
+// import instrumentation file "sel-al.str", this file references all other required files.
+imports
+    instrument/sel-al
+    
+signature
+  constructors
+      // classname, bin-directory, stdout-filename
+      JavaRunConfig       : String * String * String -> JavaRunConfig
+
+        // java-filename, bin-directory, java-code
+      JavaCompileConfig   : String * String * String -> JavaCompileConfig
+rules
+    get-java-filename :
+        JavaCompileConfig(java-filename, _, _) -> java-filename
+    get-bin-directory :
+        JavaCompileConfig(_, bin-directory, _) -> bin-directory
+    get-java-code :
+        JavaCompileConfig(_, _, java-code) -> java-code
+        
+    get-classname :
+        JavaRunConfig(classname, _, _) -> classname
+    get-bin-directory :
+        JavaRunConfig(_, bin-directory, _) -> bin-directory
+    get-stdout-filename :
+        JavaRunConfig(_, _, stdout-filename) -> stdout-filename
+
+// executing a program
+strategies
+    
+	/**
+	 * Run an ActionLanguage program in release mode.
+	 * Current term is the AST of an ActionLanguage program.
+	 * @type Term -> 
+	 */
+	run-program-ast = run-program-ast(|"release")
+
+	/**
+	 * Current term is an ActionLanguage ast.
+	 * @param mode can be "debug" or "release"
+	 * @type Term -> 
+	 */
+	run-program-ast(|mode) =
+	    ?ast ;
+	    <create-java-path-tuple(|mode)> ast ; // initialize paths for code generation
+	    ?(java-filename, bin-directory, classname, stdout-filename) ;
+	    java-code := <try-to-java> ast; // ast is a ActionLanguage ast
+	    !(java-filename, bin-directory, classname, java-code, stdout-filename);
+	    //compile-and-run-java-code; // compile classes to same directory as source
+	    compile-run-wrapper; // compile classes to same directory as source
+	    ?result
+	    <+ log(|Error(), ["Failed to run program in mode ", mode ])
+    
+    /**
+     * Current term is a path to an ActionLanguage program.
+     * @type String ->
+     */
+    run-al-program =
+        ?path
+        ; log(|Info(), ["Trying to parse ", path ])
+        ; ast := <parse-actionlanguage-file> path
+        ; log(|Info(), ["Running ", path ])
+        ; <run-program-ast(|"release")> ast
+          
+    /**
+     * Current term is a path to an ActionLanguage program.
+     * @type String ->
+     */
+    debug-al-program =
+        ?path
+        ; log(|Info(), ["Trying to parse ", path ])
+        ; ast := <parse-actionlanguage-file> path
+        ; log(|Info(), ["Instrumenting ", path ])
+        ; instrumented-ast := <instrument-ast> (path, ast)
+        ; log(|Info(), ["Running ", path ])
+        ; <run-program-ast(|"debug")> instrumented-ast
+          
+
+// compile ActionLanguage program
+strategies
+  /**
+   * Current term is an ActionLanguage ast.
+   * @param mode can be "debug" or "release"
+   * @type Term -> 
+   */
+  compile-program-ast(|mode) =
+    ?ast
+    ; <create-java-path-tuple(|mode)> ast // initialize paths for code generation
+    ; ?(java-filename, bin-directory, classname, stdout-filename)
+    ; java-code := <try-to-java> ast // ast is a ActionLanguage ast
+    ; !JavaCompileConfig(java-filename, bin-directory, java-code)
+    ; compile-java
+    ; ?result
+    ; !(result, java-filename, bin-directory, classname, stdout-filename)
+          
+    /**
+     * Current term is a path to an ActionLanguage program.
+     * Returns (result, java-filename, bin-directory, classname, stdout-filename)
+     * @type String ->
+     */
+    compile-for-run =
+        ?path
+        ; log(|Info(), ["Trying to parse ", path ])
+        ; ast := <parse-actionlanguage-file> path
+        ; log(|Info(), ["Compiling ", path ])
+        ; compile-program-ast(|"release")
+        
+    /**
+     * Returns (result, java-filename, bin-directory, classname, stdout-filename)
+     * @type String ->
+     */
+    compile-for-debug =
+        ?path
+        ; log(|Info(), ["Trying to parse ", path ])
+        ; ast := <parse-actionlanguage-file> path
+        ; log(|Info(), ["Instrumenting ", path ])
+        ; instrumented-ast := <instrument-ast> (path, ast)
+        ; log(|Info(), ["Compiling ", path ])
+        ; compile-program-ast(|"debug")
+          
+// configure compilation
+strategies
+    
+    init-compile-config = <SET-GENERATED-CODE-DIRECTORY> "gen-code/al"
+    
+    // get or sets the base directory for generated code
+    // directory can be relative or absolute, should not end with a directory-separator character
+    SET-GENERATED-CODE-DIRECTORY = ?directory
+    ; rules(
+        GET-GENERATED-CODE-DIRECTORY: _ -> directory // String, without trailing slash
+    )
+
+    generated-code-directory = GET-GENERATED-CODE-DIRECTORY <+ init-compile-config
+
+    get-al-program-package = !"org.languages.alng.programs"
+    
+    get-al-program-directory =  get-al-program-package; string-replace(|".", "/") 
+    
+    /**
+    * Returns a tuple with settings for compiling an ALNG-program to java
+    * mode is a string either "debug" or "release".
+    * Example output:
+    * (java-filename, bin-directory, classname, stdout-filename)
+    *
+    * ("$base-generated-dir/$mode/$program-name/src/org/languages/alng/programs/program-name/Output.java"
+    * , "$base-generated-dir/$mode/$program-name/bin"
+    * , "org.languages.alng.programs.$program-name.Output"
+    * , "$base-generated-dir/$mode/$program-name/output.txt")
+    */
+    create-java-path-tuple(|mode) = ?ast ;
+       // start block with default initializers
+          //base-package-dir := "org/languages/alng/programs";
+          base-package-dir := <get-al-program-directory>;
+          //base-package-name := "org.languages.alng.programs";
+          base-package-name := <get-al-program-package> ;
+          //base-generated-dir := <concat-strings> ["gen-code/al", "/", mode];
+          base-generated-dir := <concat-strings> [<generated-code-directory>, "/", mode];
+          program-name := <get-module-name> ast; // extract the name from the ast
+          //<debug(!"Run program ")> program-name;
+          program-base := <concat-strings> [base-generated-dir, "/", program-name];
+          java-src-base := <concat-strings> [program-base, "/java-src"]; // output dir for generated java
+          bin-directory := <concat-strings> [program-base, "/bin"]; // output dir for generated classes
+          // the main java file that will be compiled
+          main-java-file := <concat-strings> [base-package-dir, "/", program-name, "/", "Output.java"]; // relative to java-src-base
+          // !("test/generated_programs/example/src/"+"org/languages/alng/programs/example/Output.java", 
+          java-filename  := <concat-strings> [java-src-base, "/", main-java-file]; // complete path (relative to this eclipse project)
+          log(|Info(), ["Writing java code to ", java-filename ]) ;
+          // the classname of the class that contains the main method
+          classname := <concat-strings> [base-package-name, ".", program-name, ".", "Output"];
+          //<debug(!"path: ")> path;
+          //<debug(!"project-path: ")> project-path;
+          stdout-filename := <concat-strings> [program-base, "/output.txt"]; // output in the "test/generated"-directory
+          !(java-filename, bin-directory, classname, stdout-filename)
+
+
+/*
+  instrument-files:
+      (basepath, extension, outputpath) -> (status, generated-files)
+      with
+*/
+imports
+  util
+  
+strategies
+    
+    init-runtime-config = <SET-PROGRAM-RUNTIME-CLASSPATH> ["lib/runtime/alngruntime.jar"]
+    
+    init-debug-runtime-config = <SET-PROGRAM-DEBUG-RUNTIME-CLASSPATH> 
+         ["lib/runtime/alngruntime.jar"
+        , "lib/runtime/org.spoofax.debug.interfaces.jar"
+        , "lib/runtime/org.spoofax.debug.interfaces.java.jar"
+          ]
+    
+    // relative directory to "something", currently something is the <plugin-path>
+    SET-PROGRAM-RUNTIME-CLASSPATH = ?entries*
+    ; rules(
+        GET-PROGRAM-RUNTIME-CLASSPATH: _ -> entries* // List<String>
+    )
+    
+    // relative directory to "something", currently something is the <plugin-path>
+    SET-PROGRAM-DEBUG-RUNTIME-CLASSPATH = ?entries*
+    ; rules(
+        GET-PROGRAM-DEBUG-RUNTIME-CLASSPATH: _ -> entries* // List<String>
+    )
+    
+    program-runtime-classpath = 
+        // plugin-path; debug(!"Plugin path: ") ; project-path ; debug(!"Project path: ") ;
+        //!["lib/runtime/alngruntime.jar"]
+        (GET-PROGRAM-RUNTIME-CLASSPATH <+ init-runtime-config)
+        // make it an absolute path
+        ; map(![<plugin-path>, "/", <id>]; concat-strings)
+        // separate directories with ":"
+        ; join-strings(|":")
+          
+    program-debug-runtime-classpath = 
+        // !["lib/runtime/alngruntime.jar"
+        // , "lib/runtime/org.spoofax.debug.interfaces.jar"
+        // , "lib/runtime/org.spoofax.debug.interfaces.java.jar"
+        //   ]
+        (GET-PROGRAM-DEBUG-RUNTIME-CLASSPATH <+ init-debug-runtime-config)
+        // make it an absolute path
+        ; map(![<plugin-path>, "/", <id>]; concat-strings)
+        // separate directories with ":"
+        ; join-strings(|":")
+
+  /**
+   * Compiles code to java using the JavaCompileConfig.
+   * @return Return 0 when compilation succeeded.
+   * @type JavaCompileConfig -> Int
+   */
+  compile-java = ?compileConfig
+    ; java-filename := <get-java-filename> compileConfig
+    ; bin-directory := <get-bin-directory> compileConfig
+    ; java-code := <get-java-code> compileConfig
+    //;?JavaCompileConfig(java-filename, java-code, bin-directory)
+    ; java-directory := <dirname> java-filename // java-code will be saved in this directory
+    ; <ensure-path-exists> (<getcwd>, java-directory) // make sure it exists, it is relative to the working-directory
+    ; <ensure-path-exists> (<getcwd>, bin-directory)
+    // write the java-code to file
+    ; handle := <fopen> (java-filename, "w")
+    ; <fputs> (java-code, handle); fclose
+    ; log(|Info(), ["Compiling java ", java-filename ])
+    // call the compiler
+    ; <ext-compile-java> (java-filename, bin-directory)
+  
+  /**
+   * Calls java to compile the java program
+   * @internal
+   * @type (String, String) -> Int
+   */
+  ext-compile-java = ?(java-filename, bin-directory)
+	  // java:
+	  // -d <directory> = Specify where to place generated source files
+	  // -g = Generate all debugging info
+	  // -target <release> = Generate class files for specific VM version
+	  // -sourcepath <path> = Specify where to find input source files
+      ; classpath* := ["-classpath", <program-runtime-classpath>]
+      ; output* := ["-d", bin-directory]
+      ; args* := [java-filename, classpath*, output*]
+      ; basedir := "gen-code/temp"
+      //; <call-redirect(|basedir)> ("javac", args*)
+      ; <call> ("javac", args*)
+
+  ext-run-java = ?(bin-directory, classname, stdout-filename)
+      ; classpath-list* := [bin-directory, <program-debug-runtime-classpath>]
+      ; classpathvalues := <join-strings(|":")> classpath-list* // convert to string, each directory is separated with ':'
+      //; <call> (<get-java-runner>, [classpathvalues, classname, stdout-filename]) // wrapper around java
+      ; <call> ("java", ["-classpath", classpathvalues, classname])
+      ; <call-redirect(|stdout-filename)> ("java", ["-classpath", classpathvalues, classname])
+      //; <call-redirect(|<generated-code-directory>)> (<get-java-runner>, [classpathvalues, classname, stdout-filename]) // wrapper around java
+  
+  compile-run-wrapper = ?(java-filename, bin-directory, classname, java-code, stdout-filename)
+    ; !JavaCompileConfig(java-filename, bin-directory, java-code)
+    ; (compile-java <+ (log(|Error(), ["Java compilation failed for ", java-filename ]); fail))
+    ; ?exit-code
+    ; if ?0 then
+          log(|Info(), ["Compilation success with exit code: ", exit-code ])
+          // now run
+          ; <ext-run-java> (bin-directory, classname, stdout-filename)
+          ; log(|Info(), ["Java run finished"])
+          ; result := <read-text-file> stdout-filename
+      else
+          log(|Error(), ["Compilation failed with exit code: ", exit-code ])
+          ; result := "compilation failed"
+      end
+
+
+strategies
+    
+    
+    
+    /**
+     * @type  (String, List(String)) -> ()
+     */
+    call-redirect-old(|basedir) = ?call-args
+        ; ?(program, args)
+        ; <read-from-prog(!program, !args)> ""
+      
+    //call-redirect(|basedir) = id
+    call-redirect(|stdout-filename) = id
+    //call-direct-old(|basedir) = id
+        ; ?call-args
+        //; Stream(opt-fdin) := <get-file-desc(|basedir)> 
+        ; opt-fdin := <stdin-stream>
+        //; opt-fdout := <get-file-desc(|basedir)> "stdout.txt"
+        ; opt-fdout := <fopen> (stdout-filename, "w")
+        //; opt-fdout := <stdout-stream>
+        //; opt-fderr := <get-file-desc(|basedir)> "stderr.txt"
+        ; opt-fderr := <stderr-stream>
+        // Now try to call the external javac via call:
+        //; <call(|opt-fdin, opt-fdout, opt-fderr)> call-args // FIXME: does not work 
+        // Forking of applications is not supported on Java at this time
+        // This is due to a fork override, see native-calls-compat.str.
+        // This does not happen when using <call> because this strategy is also overridden in native-calls-compat.str
+        ; !call-args; ?(program, args)
+        ; Stream(instream)  := opt-fdin
+        ; Stream(outstream) := opt-fdout
+        ; Stream(errstream) := opt-fderr
+        ; log(|Info(), ["Calling external tool ", program, " ", <try(separate-by(|" "); concat-strings)> args])
+        ; exit-code := <prim("SSL_EXT_call", program, args, instream, outstream, errstream)>
+        ; (<fflush> outstream; <fclose> outstream <+ log(|Error(), ["Failed to flush and close outstream"]))
+        ; (<fflush> errstream; <fclose> errstream <+ log(|Error(), ["Failed to flush and close errstream"]))
+        ; !exit-code
+    /**
+     * @type  String -> Stream
+     */
+    get-file-desc(|directory) = ?filename
+        ; location := <concat-strings> [ directory, "/", filename]
+        ; debug
+        ; filedescr := <fopen> (location, "w")
+        ; debug
+
+imports
+    libdsldi
+
+strategies
+    
+    get-java-runner = id
+      ; directory := <generated-code-directory>
+      ; if is-abspath then
+            <ensure-path-exists> (<getcwd>, directory)
+        else
+            <ensure-directory-exists> directory
+        end
+        ; location := <write-java-runner(|directory)>
+      //; location := <concat-strings> [ dir, "/", "java-to-result"]
+      //!"/home/rlindeman/Applications/development/eclipse/helios_sdk/workspace/org.languages.alng.editor/test/java-to-result"
+      //; !location
+      
+    /**
+     * Generates the java-runner script in directory.
+     * Returns the location of the script
+     */
+    write-java-runner(|directory) = 
+        //generated-code-directory
+        location := <concat-strings> [ directory, "/", "java-to-result"]
+        ; handle := <fopen> (location, "w")
+        ; <fputs> (<get-java-runner-program-source>, handle)
+        ; fclose
+        ; !location
+      
+    get-java-runner-program-source = 
+        debug(!"get code"); code :=
+$[
+#!/bin/bash
+echo Start Java program
+#pwd
+# $1: classpath containing class-files
+# $2: name of the class with the main method
+# $3: name of the output file
+#java -classpath $1 $2 > result.txt
+java -classpath $1 $2 > $3
+echo Finish Java program
+]

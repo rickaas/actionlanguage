@@ -1,0 +1,34 @@
+module ifblock
+main bar ;
+function void bar ( ) {
+    try
+    {
+      debug.enter( "alng_scripts/testcases/programs/test011_returnwithexpression.alng" , "4,0,9,0" , "bar" ) ;
+      debug.step( "alng_scripts/testcases/programs/test011_returnwithexpression.alng" , "6,4,6,29" ) ;
+      Integer i := global.foo( ) ;
+      debug.var( "alng_scripts/testcases/programs/test011_returnwithexpression.alng" , "6,4,6,29" , "i" , i) ;
+      debug.step( "alng_scripts/testcases/programs/test011_returnwithexpression.alng" , "7,4,7,24" ) ;
+      system.print( "i=" + i ) ;
+      debug.step( "alng_scripts/testcases/programs/test011_returnwithexpression.alng" , "8,4,8,10" ) ;
+      return ;
+    }
+    finally
+    {
+      debug.exit( "alng_scripts/testcases/programs/test011_returnwithexpression.alng" , "4,0,9,0" , "bar" ) ;
+    }
+}
+function Integer foo ( ) {
+    try
+    {
+      debug.enter( "alng_scripts/testcases/programs/test011_returnwithexpression.alng" , "10,0,13,0" , "foo" ) ;
+      debug.step( "alng_scripts/testcases/programs/test011_returnwithexpression.alng" , "11,4,11,18" ) ;
+      Integer a := 4 ;
+      debug.var( "alng_scripts/testcases/programs/test011_returnwithexpression.alng" , "11,4,11,18" , "a" , a) ;
+      debug.step( "alng_scripts/testcases/programs/test011_returnwithexpression.alng" , "12,4,12,20" ) ;
+      return 4 * 4 * 6 ;
+    }
+    finally
+    {
+      debug.exit( "alng_scripts/testcases/programs/test011_returnwithexpression.alng" , "10,0,13,0" , "foo" ) ;
+    }
+}

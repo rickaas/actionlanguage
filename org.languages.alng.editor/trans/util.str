@@ -1,0 +1,68 @@
+module util
+
+imports
+    libstrategolib
+    libstratego-sglr
+    libstratego-gpp
+  
+    libstratego-aterm // pp-aterm
+strategies
+    
+    ensure-path-exists =
+        //debug(!"ensure-path-exists ");
+        ?(base-path, relative-path)
+        ;<is-string> base-path
+        ;<is-string> relative-path
+        ; dir* := <string-tokenize> (['/'], relative-path) // tokenize to create subdirectories
+        ; if not(<eq>(<length>dir*, 0)) then
+            <map(create-folder)> dir* // create a directory if it does not exist
+            // after create folder cd into the directory
+          end
+        ; <create-folder> base-path // restore current folder
+    
+    // change to directory (if it does not exist create it)
+    create-folder = 
+        ?directory-to-create
+        //; <debug(!"Create folder ")> directory-to-create
+        ; <file-exists<+mkdir(|"w")> directory-to-create
+        ; <chdir>directory-to-create
+
+strategies
+    // alng_java_strategy_0_0
+  external alng-java-strategy(|)
+  
+imports
+    lib/editor-common.generated // pp-actionlanguage-string
+    lib/libdsldi // write-to-file(|filename, contents)
+  
+strategies
+    
+    write-actionlanguage-to-file = ?(output-filename, dsl-ast)
+        // write as ActionLanguage
+        //; result := <pp-actionlanguage-string> dsl-ast
+        //; debug(!"wite-actionlanguage-to-file: ")
+        //; write-to-file(|output-filename, result)
+        // write as ATerm
+        ; result := <write-to-string> dsl-ast
+        ; write-to-file(|output-filename, result)
+          
+    write-actionlanguage-as-ast = ?(output-filename, dsl-ast)
+        ; result := <write-to-string> dsl-ast
+        ; write-to-file(|output-filename, result)
+          
+    write-actionlanguage-as-dsl = ?(output-filename, dsl-ast)
+        ; result := <pp-actionlanguage-string> dsl-ast
+        ; write-to-file(|output-filename, result)
+
+    parse-actionlanguage-as-dsl = parse-actionlanguage-file
+    
+strategies
+  join-strings(|separator):
+      [head | tail] -> single-string
+      where
+          <is-string> head
+          ; tail-result := <join-strings(|separator)> tail
+          ; single-string := <concat-strings> [head, separator, tail-result] 
+          
+  join-strings(|separator):
+      [head] -> head

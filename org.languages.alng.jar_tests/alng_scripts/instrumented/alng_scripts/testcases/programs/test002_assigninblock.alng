@@ -1,0 +1,33 @@
+module assigninblock
+main bar ;
+function void bar ( ) {
+    try
+    {
+      debug.enter( "alng_scripts/testcases/programs/test002_assigninblock.alng" , "5,0,16,0" , "bar" ) ;
+      debug.step( "alng_scripts/testcases/programs/test002_assigninblock.alng" , "6,4,6,22" ) ;
+      Boolean b := false ;
+      debug.var( "alng_scripts/testcases/programs/test002_assigninblock.alng" , "6,4,6,22" , "b" , b ) ;
+      debug.step( "alng_scripts/testcases/programs/test002_assigninblock.alng" , "7,4,10,4" ) ;
+      {
+        debug.step( "alng_scripts/testcases/programs/test002_assigninblock.alng" , "8,8,8,25" ) ;
+        system.print( "b" ) ;
+        debug.step( "alng_scripts/testcases/programs/test002_assigninblock.alng" , "9,8,9,18" ) ;
+        b := false ;
+        debug.var( "alng_scripts/testcases/programs/test002_assigninblock.alng" , "9,8,9,18" , "b" , b ) ;
+      }
+      debug.step( "alng_scripts/testcases/programs/test002_assigninblock.alng" , "11,4,13,4" ) ;
+      {
+        debug.step( "alng_scripts/testcases/programs/test002_assigninblock.alng" , "12,8,12,17" ) ;
+        b := true ;
+        debug.var( "alng_scripts/testcases/programs/test002_assigninblock.alng" , "12,8,12,17" , "b" , b ) ;
+      }
+      debug.step( "alng_scripts/testcases/programs/test002_assigninblock.alng" , "14,4,14,19" ) ;
+      system.print( b ) ;
+      debug.step( "alng_scripts/testcases/programs/test002_assigninblock.alng" , "15,4,15,10" ) ;
+      return ;
+    }
+    finally
+    {
+      debug.exit( "alng_scripts/testcases/programs/test002_assigninblock.alng" , "5,0,16,0" , "bar" ) ;
+    }
+}

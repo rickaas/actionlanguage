@@ -1,0 +1,26 @@
+module whileblock
+main bar ;
+function void bar ( ) {
+    try
+    {
+      debug.enter( "alng_scripts/testcases/programs/test010_whileblock.alng" , "5,0,13,0" , "bar" ) ;
+      debug.step( "alng_scripts/testcases/programs/test010_whileblock.alng" , "6,4,6,22" ) ;
+      Integer index := 0 ;
+      debug.var( "alng_scripts/testcases/programs/test010_whileblock.alng" , "6,4,6,22" , "index" , index) ;
+      debug.step( "alng_scripts/testcases/programs/test010_whileblock.alng" , "7,4,10,4" ) ;
+      while ( index < 10 )
+      {
+        debug.step( "alng_scripts/testcases/programs/test010_whileblock.alng" , "9,8,9,26" ) ;
+        index := index + 1 ;
+        debug.var( "alng_scripts/testcases/programs/test010_whileblock.alng" , "9,8,9,26" , "index" , index) ;
+      }
+      debug.step( "alng_scripts/testcases/programs/test010_whileblock.alng" , "11,4,11,23" ) ;
+      system.print( index ) ;
+      debug.step( "alng_scripts/testcases/programs/test010_whileblock.alng" , "12,4,12,10" ) ;
+      return ;
+    }
+    finally
+    {
+      debug.exit( "alng_scripts/testcases/programs/test010_whileblock.alng" , "5,0,13,0" , "bar" ) ;
+    }
+}

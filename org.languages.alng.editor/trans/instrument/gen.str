@@ -1,0 +1,187 @@
+module instrument/gen
+
+// sel imports
+imports
+  lib/libdsldi
+  
+imports
+  include/ActionLanguage // the constructors
+  generate // transform actionlanguage to Java
+  
+signature
+  constructors
+      // DebugEventCall represents a debug event
+      // its has a name which is the type of the event, followed by a list of expression that contain the metadata
+      DebugEventCall       : ID * FunctionArguments -> Statement
+      
+      // the finally contains the exit DebugEventCall
+      DebugTryFinally      : List(Statement) * List(Statement) -> Statement
+
+      // the first statement contains DebugEventCall, the second one the original statement
+      DebugStep            : Statement * Statement -> Statement
+
+strategies
+    // current term should be a list of string-value, each will be converted to String(value)
+    gen-call-arguments:
+        args* -> f-args
+        where
+            //arg-values := <map(!String(<id>))> args*
+            arg-values := args*
+            ; f-args := FunctionArguments(arg-values)
+
+strategies
+    
+    gen-enter : 
+        f -> instrumented-f
+        where
+            (debug-information := <GET-CURRENT-DEBUG-INFORMATION> <+ err(|"Failed to get debug information"))
+            ;?(filename, a, b, c, d, f-name)
+            ; program-filename := $["[filename]"]
+            ; location := $["[a],[b],[c],[d]"]
+            ; functionName := $["[f-name]"]
+            //; args := FunctionArguments([String(program-filename), String(location), String(functionName)]) // public static void enter(String filename, String location, String functionName)
+            ; args := <gen-call-arguments> [String(program-filename), String(location), String(functionName)]
+            ; enter-event := DebugEventCall("enter", args)
+            ; instrumented-f := <insert-enter-event(|enter-event)> f
+            // insert the enter-event as first statement in the function-body
+    
+    insert-enter-event(|enter-event) :
+    	f@FunctionDeclVoid(name, arg-defs*, statements*) -> f'
+    	where
+    		new-statements* := [enter-event | statements*] 
+            ; f' := FunctionDeclVoid(name, arg-defs*, new-statements*)
+            //; <ext-debug-attachments> f
+            //; !(f, f'); copy-attachment
+
+    insert-enter-event(|enter-event) :
+        f@FunctionDecl(type, name, arg-defs*, statements*) -> f'
+        where
+            new-statements* := [enter-event | statements*] 
+            ; f' := FunctionDecl(type, name, arg-defs*, new-statements*)
+            //; <ext-debug-attachments> f
+            //; !(f, f'); copy-attachment
+
+strategies
+	
+    gen-exit :
+        f -> instrumented-f
+        where
+            (debug-information := <GET-CURRENT-DEBUG-INFORMATION> <+ err(|"Failed to get debug information"))
+            ;?(filename, a, b, c, d, f-name)
+            ; program-filename := $["[filename]"]
+            ; location := $["[a],[b],[c],[d]"]
+            ; functionName := $["[f-name]"]
+            //; args* := [String(program-filename), String(location), String(functionName)] // public static void enter(String filename, String location, String functionName)
+            ; args := <gen-call-arguments> [String(program-filename), String(location), String(functionName)]
+            ; exit-event := DebugEventCall("exit", args)
+            ; instrumented-f := <insert-exit-event(|exit-event)> f
+
+    // wrap the function body in a try-finally block.
+    // The exit event has to be in the finally block to make sure it is always fired
+    insert-exit-event(|exit-event) :
+    	f@FunctionDeclVoid(name, arg-defs*, statements*) -> f'
+    	where
+	        new-statements* := [ DebugTryFinally(statements*, [exit-event]) ]
+	        ; f' := FunctionDeclVoid(name, arg-defs*, new-statements*)
+            //; <ext-debug-attachments> f
+            //; !(f, f'); copy-attachment
+              
+    insert-exit-event(|exit-event) :
+        f@FunctionDecl(type, name, arg-defs*, statements*) -> f'
+        where
+	        new-statements* := [ DebugTryFinally(statements*, [exit-event]) ]
+	        ; f' := FunctionDecl(type, name, arg-defs*, new-statements*)
+            //; <ext-debug-attachments> f
+            //; !(f, f'); copy-attachment
+
+strategies
+    gen-step :
+        s -> instrumented-s
+        where
+            (debug-information := <GET-CURRENT-DEBUG-INFORMATION> <+ err(|"Failed to get debug information"))
+            ;?(filename, a, b, c, d)
+            ; program-filename := $["[filename]"]
+            ; location := $["[a],[b],[c],[d]"]
+            //; functionName := $["[name]"]
+            //; args* := [String(program-filename), String(location)/*, String(functionName)*/]
+            // public static void step(String filename, String location)
+            ; args := <gen-call-arguments> [String(program-filename), String(location)]
+            ; step-event := DebugEventCall("step", args)
+            ; instrumented-s := DebugStep(step-event, s)
+
+strategies
+    
+    // the var-event is added after every variable assignment, 
+    gen-var :
+        s -> instrumented-s
+        where
+            (debug-information := <GET-CURRENT-DEBUG-INFORMATION> <+ err(|"Failed to get debug information"))
+            ;?(filename, a, b, c, d, var-name)
+            ; program-filename := $["[filename]"]
+            ; location := $["[a],[b],[c],[d]"]
+            ; variableName := $["[var-name]"]
+            //; args* := [String(program-filename), String(location), String(variableName)]
+            ; args := <gen-call-arguments> [String(program-filename), String(location), String(variableName), Var(var-name)]
+            ; var-event := DebugEventCall("var", args)
+            ; instrumented-s := DebugStep(s, var-event) // the var event is fired after the variable is set
+
+    // We trust that the enter-event is already added.
+    // The var-events tell the debugger what the arguments of the function are, they should be before the enter-event.
+    gen-function-argument :
+        f -> instrumented-f
+        where
+            (debug-information := <GET-CURRENT-DEBUG-INFORMATION> <+ err(|"Failed to get debug information"))
+            ;?(filename, a, b, c, d, var-names*)
+            ; program-filename := $["[filename]"]
+            ; location := $["[a],[b],[c],[d]"]
+            ; var-events* := <map(create-function-argument-event(| [String(program-filename) , String(location)] ))> var-names*
+            // insert a event that says that we are about to enter a new scope
+            // then insert the var-events so the debugger knows these belong to a new scope
+            // then insert the enter-event so we can suspend on a function-enter (and we known the function arguments)
+            ; instrumented-f := <insert-var-events(|var-events*)> f
+    
+    // Current term is the name of the variable, result is a DebugEventCall for a var event.
+    create-function-argument-event(|debug-info*) =
+    	?var-name
+    	; args* := [debug-info*,  String($["[var-name]"]), Var(var-name)] 
+    	; var-event := DebugEventCall("var", FunctionArguments(args*))
+
+    // Insert the var-events at the start of the method body.
+    insert-var-events(|var-events*) :
+        FunctionDeclVoid(name, arg-defs*, statements*) -> f'
+        where
+            new-statements* := [var-events* , statements*] 
+            ; f' := FunctionDeclVoid(name, arg-defs*, new-statements*)
+
+    // Insert the var-events at the start of the method body.
+    insert-var-events(|var-events*) :
+        FunctionDecl(type, name, arg-defs*, statements*) -> f'
+        where
+            new-statements* := [var-events* , statements*] 
+            ; f' := FunctionDecl(type, name, arg-defs*, new-statements*)
+              
+strategies
+// The post-instrumentation should be called after the instrumentation is done.
+// The ATerm could still contains some undefined constructor, let's convert them to known ones defined in the DSL grammar.
+
+    // traverse over the entire ast and try to replace the debug-aterm with ActionLanguage-aterms
+    actionlanguage-post-instrumentation =
+// Application of innermost exhaustively applies one set of rules to a tree
+        innermost(replace-debug-aterms)
+        
+      // // name, followed by a list of expression
+      // DebugEventCall       : ID * List(Exp) -> Statement
+    replace-debug-aterms :
+        DebugEventCall(name, exp*) -> ExprStatement(DebugSystemCall(name,exp*))
+        
+    replace-debug-aterms :
+        DebugTryFinally(try-stats*, finally-stats*) -> TryFinally(try-stats*, finally-stats*)
+        
+    // replace-debug-aterms :
+    //     DebugStep(event, statement) -> StatementBlock([event, statement])
+    
+    // split-fetch-keep returns a triple.
+    // First element is the head of the list, second element is the DebugStep(event, statement), third element is the tail
+    //ffsasasdf = split-fetch-keep(?DebugStep(event, statement)); ?(head-list, _, tail-list); <conc> (head-list, [event,statement], tail-list)
+    replace-debug-aterms = 
+        split-fetch-keep(?DebugStep(event, statement)); ?(head-list, _, tail-list); <conc> (head-list, [event,statement], tail-list)

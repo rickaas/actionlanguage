@@ -1,0 +1,14 @@
+module run_main
+
+language ActionLanguage
+
+test run main function 
+  !"test/examples/simple_calc.alng"
+  ; run-al-program 
+  => "Global print FFFFFFF g\n"
+  
+  
+test debug main function 
+  !"test/examples/simple_calc.alng"
+  ; debug-al-program 
+  => "Global print FFFFFFF g\n"

@@ -1,0 +1,5 @@
+instrumentation
+
+// a function with arguments introduces new variables in the function scope.
+// the var-events have to be placed before the enter event. When we enter we already want to know the arguments of the function
+event var at FunctionDecl._ creates gen-function-argument from extract-function-argument-info

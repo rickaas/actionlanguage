@@ -1,0 +1,17 @@
+Module("justprint"
+    ,[Main("bar"),
+         FunctionDeclVoid(
+            "bar"
+            ,[]
+            ,[
+              DebugTryFinally(
+                  [ 
+                      ExprStatement(GlobalCall("print",FunctionArguments([String("\"Global print FFFFFFF g\"")]))) 
+                  ],[
+                      DebugEventCall("exit",FunctionArguments([String("\"alng_scripts/justprint.alng\""),String("\"5,0,8,0\""),String("\"bar\"")]))
+                  ]
+              )
+            ]
+         )
+    ]
+)

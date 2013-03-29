@@ -1,0 +1,17 @@
+module tryfinally
+
+main foo;
+
+function void foo() {
+    Boolean b := false;
+    try {
+        b := false;
+        global.throwStuff("Throw before b is set to true...");
+        b := true;
+    } finally {
+        system.print("Finally done...");
+        Integer i := 9;
+    }
+    system.print("Exiting with value: " + b);
+    return;
+}

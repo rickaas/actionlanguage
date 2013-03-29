@@ -1,0 +1,47 @@
+module example
+
+main bar;
+
+entity User {
+    name     : String
+    password : String
+    homepage : URL
+    
+    function void foo(String arg1, Integer arg2, User arg3) {
+        Integer integer := 3;
+        Integer result := integer * 5;
+        Boolean b := false;
+        if (b) {
+            this.baz();
+        } else {
+            global.bar();
+        }
+    }
+  
+    function String baz() {
+        system.print("User:");
+        return "BAZ";
+    }
+}
+
+function void bar() {
+    system.print("Global print FFFFFFF g");
+    User u := new User;
+    String a := u.baz();
+    system.print(a);
+}
+
+function Integer bar2(Integer thing) {
+    system.print("Print thing: " + thing);
+    return 2;
+}
+
+entity BlogPosting {
+    poster : User
+    body   : String
+}
+
+entity URL {
+    location : String
+}
+

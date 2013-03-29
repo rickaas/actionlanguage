@@ -1,0 +1,10 @@
+module tiny
+
+main bar;
+
+function void bar() {
+    system.print("Hello World!");
+    system.print("Hello Foobar!");
+
+    return;
+}

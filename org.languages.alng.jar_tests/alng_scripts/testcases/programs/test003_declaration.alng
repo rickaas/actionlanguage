@@ -1,0 +1,11 @@
+module declaration
+
+main bar;
+
+function void bar() {
+    Boolean b := false;
+    Boolean c;
+    c := b;
+    system.print(c);
+    return;
+}

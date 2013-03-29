@@ -1,0 +1,165 @@
+%% Grammar for the ActionLanguage language
+%% By default, based on an example "entities" syntax
+module ActionLanguage
+
+imports Common
+
+exports
+
+  sorts
+      FunctionDecl
+
+context-free start-symbols
+    Start
+
+  context-free syntax
+
+%% a module contains multiple definitions
+    "module" ID Definition*       -> Start {cons("Module")}
+    
+%% Function declaration can be reused inside entities
+    "function" Type ID "(" {ArgDef ","}* ")" "{" Statement* "}" -> FunctionDecl {cons("FunctionDecl"), avoid}
+    "function" "void" ID "(" {ArgDef ","}* ")" "{" Statement* "}" -> FunctionDecl {cons("FunctionDeclVoid")}
+
+    %% function arguments
+    Type ID -> ArgDef {cons("Argdef")}
+    
+%% a definition can be a global function declaration
+    FunctionDecl                                   -> Definition
+%% or an entity definition
+    "entity" ID "{" EntityContents* "}"            -> Definition {cons("Entity")}
+%% and we define the main-function entry point, use a GlobalFunction name without arguments
+    "main" ID ";"                                  -> Definition {cons("Main")}
+
+%% an entity contains properties
+    ID ":" Type                   -> EntityContents {cons("Property")}
+%% and entity functions
+    FunctionDecl                  -> EntityContents %% reuse FunctionDecl
+        
+context-free syntax
+%% the following statements are supported: 
+%% var-declaration
+    Type ID (":=" Exp)? ";"                                           -> Statement {cons("Declaration")}
+%% if expression
+    "if" "(" Exp ")" "{" Statement* "}"                               -> Statement {cons("If")}
+    "if" "(" Exp ")" "{" Statement* "}" "else" "{" Statement* "}"     -> Statement {cons("IfElse")}
+%% return a value
+    "return" ";"                                              -> Statement {cons("Return")}
+    "return" Exp ";"                                          -> Statement {cons("ReturnValue")}
+%% a block with statements
+    "{" Statement* "}"                                                -> Statement {cons("StatementBlock"), avoid}
+
+%% try-finally
+    "try" "{" Statement* "}" "finally" "{" Statement* "}"             -> Statement {cons("TryFinally")} 
+%% while-loop
+    "while" "(" Exp ")" "{" Statement* "}"                            -> Statement {cons("While")}
+%% The following are converted to expressions
+%% assignment
+%%    ID ":=" Exp ";" -> Statement {cons("Assign")}
+%% call to an entity function
+%%    ID "." ID "(" {Exp ","}* ")" ";"                             -> Statement {cons("Call")}
+%% call to a global function
+%%    "global" "." ID "(" {Exp ","}* ")" ";"                             -> Statement {cons("GlobalCall"), prefer}
+%% call to a debug function, should not be used by real program
+%%    "debug" "." ID "(" {Exp ","}* ")" ";"                             -> Statement {cons("DebugSystemCall"), prefer}
+
+    %% an expression can be used as a statement
+    Exp ";" -> Statement {cons("ExprStatement")}
+
+    ID -> FunctionName %% the name of an entity function or global function
+  	ID -> PropertyName %% a property of an entity
+  	ID -> Var %% the name of a declared variable
+    
+    %% the arguments for a function call
+    "(" {Exp ","}* ")" -> FunctionArguments {cons("FunctionArguments")}
+    
+%%                 FunctionName FunctionArguments -> Exp {cons("FunctionCall")} %% function invoke
+    (Exp      ".")? FunctionName FunctionArguments -> Exp {cons("FunctionCall")} %% function invoke
+    "global" "." FunctionName FunctionArguments -> Exp {cons("GlobalCall")} %% function invoke
+    "debug"  "." FunctionName FunctionArguments -> Exp {cons("DebugSystemCall")} %% function invoke
+    "system" "." FunctionName FunctionArguments -> Exp {cons("SystemCall")} %% function invoke
+
+    %% TODO: Expr ArraySubscript -> ArrayAccess %% Accessing an element in an array, but we do not support arrays...
+    Exp "." PropertyName -> FieldAccess {cons("PropertyAccess")} %% Property accessor
+    FieldAccess -> Exp {cons("Getter")}
+    
+    %% For now assigment cannot be inside an expression, they are statements
+    %% expression can be assigned to a left hand value, all left hand values are expressions
+    %%Var         -> LValue {cons("Var")} %% a variable
+    %%FieldAccess -> LValue {cons("Setter")}%% a property
+    %%ArrayAccess -> LValue %% array access
+    Var ":=" Exp ";"           -> Statement {cons("AssignVar")}
+    FieldAccess ":=" Exp ";"   -> Statement {cons("AssignProperty")}
+    
+exports
+%% expression can be nested
+  sorts Exp  
+  context-free syntax
+  	"new" Type  -> Exp {cons("NewEntity")}
+  	Var         -> Exp {cons("Var")} 
+    INT         -> Exp {cons("Int")} 
+    STRING      -> Exp {cons("String")}
+    Bool        -> Exp {cons("Bool")}
+    "(" Exp ")" -> Exp {bracket}
+    
+    Exp "*" Exp -> Exp {left, cons("Times")} 
+    Exp "/" Exp -> Exp {left, cons("Div")}
+    Exp "%" Exp -> Exp {left, cons("Mod")}
+  
+    Exp "+" Exp -> Exp {left, cons("Plus")} 
+    Exp "-" Exp -> Exp {left, cons("Minus")}
+
+    Exp "==" Exp -> Exp {left, cons("Eq")}
+    Exp "<" Exp -> Exp {left, cons("LT")}
+    Exp ">" Exp -> Exp {left, cons("GT")}
+    Exp "<=" Exp -> Exp {left, cons("LTEq")}
+    Exp ">=" Exp -> Exp {left, cons("GTEq")}
+    Exp "!=" Exp -> Exp {left, cons("NEq")}
+    
+    ID                            -> Type {cons("Type")}
+
+  context-free priorities 
+    {left:
+      Exp "*" Exp -> Exp
+      Exp "/" Exp -> Exp
+      Exp "%" Exp -> Exp
+    } 
+  > {left:
+      Exp "+" Exp -> Exp
+      Exp "-" Exp -> Exp
+    }
+  > {left:
+      Exp "==" Exp -> Exp
+      Exp "<" Exp -> Exp
+      Exp ">" Exp -> Exp
+      Exp "<=" Exp -> Exp
+      Exp ">=" Exp -> Exp
+      Exp "!=" Exp -> Exp
+    }
+
+
+lexical syntax
+  "true"  -> Bool
+  "false" -> Bool
+
+%% rejections
+lexical syntax
+  Bool    -> ID {reject}
+  Keyword -> ID {reject}
+%%  Bool -> Var {reject}
+
+    "module" -> Keyword
+    "entity" -> Keyword
+    "if"    -> Keyword
+    "else" -> Keyword
+    "while" -> Keyword
+    "do" -> Keyword
+    "end" -> Keyword
+    "return" -> Keyword
+    "void" -> Keyword
+    "new" -> Keyword
+    "try" -> Keyword
+    "finally" -> Keyword
+    "global" -> Keyword
+    "debug" -> Keyword
+    "system" -> Keyword

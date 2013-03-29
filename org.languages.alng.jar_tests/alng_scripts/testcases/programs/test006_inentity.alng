@@ -1,0 +1,33 @@
+module example
+
+main bar;
+
+entity User {
+    name     : String
+    password : String
+    
+    function void foo(String arg1, Integer arg2, User arg3) {
+        Integer integer := 3;
+        Integer result := integer * 5;
+        Boolean b := false;
+        if (b) {
+            
+        } else {
+            
+        }
+        return;
+    }
+  
+    function String baz() {
+        system.print("User:");
+        return "BAZ";
+    }
+}
+
+function void bar()
+{
+    User u := new User;
+
+    u.foo("a", 1, u);
+    return;
+}

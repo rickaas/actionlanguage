@@ -1,0 +1,7 @@
+module parse_2
+
+language ActionLanguage
+
+test Simple entity on a single line [[
+module example entity User { name : String }
+]] 0 errors

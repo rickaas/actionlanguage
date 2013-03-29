@@ -1,0 +1,12 @@
+module justprint 
+// instrument version with ony enter/exit
+main bar ; 
+
+function void bar ( ) { 
+    try {
+        debug . enter ( "alng_scripts/justprint.alng" , "5,0,8,0" , "bar" ) ;
+        system . print ( "Global print FFFFFFF g" ) ;
+   } finally {
+        debug . exit ( "alng_scripts/justprint.alng" , "5,0,8,0" , "bar" );
+   } 
+}

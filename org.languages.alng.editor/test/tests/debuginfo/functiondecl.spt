@@ -1,0 +1,20 @@
+module functiondecl
+
+language ActionLanguage
+
+test extract info from global function with void [[
+    
+    module f1
+    
+    function void bar() {
+	    global.print("Global print");
+	    User u := new User;
+	    String a := u.baz();
+	    global.print(a);
+    }
+
+]]
+
+test functiondecl info 1
+    <parse-file> "test/tests/data/f1.alng"
+    // 

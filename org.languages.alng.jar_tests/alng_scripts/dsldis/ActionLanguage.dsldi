@@ -1,0 +1,22 @@
+instrumentation
+
+event enter at FunctionDecl._ creates gen-enter from extract-function-info
+// Statement-sort is used for all statements, the step-event has to be placed before the statement
+event step at Statement._ creates gen-step from extract-statement-info
+
+event exit at FunctionDecl._ creates gen-exit from extract-function-info
+// FunctionDecl-sort is used for global and entity functions
+
+
+
+
+
+// A function with arguments introduces new variables in the function scope.
+// The var-events have to be placed before the enter event. When we enter we already want to know the arguments of the function.
+// Therefore the var-instrumentation has to be executed after the enter-instrumentation
+event var at FunctionDecl._ creates gen-function-argument from extract-function-argument-info
+
+// introduces a new var in the current scope
+event var at Statement.Declaration creates gen-var from extract-var-info
+// changes the value of a variable
+event var at Statement.AssignVar creates gen-var from extract-var-info

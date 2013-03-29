@@ -1,0 +1,8 @@
+instrumentation
+
+// instrument variables introduced by the Statement.Assign
+// the var-event has to be placed after the matched statement
+// variable declaration
+event var at Statement.Declaration creates gen-var from extract-var-info
+// variable assignment
+event var at Statement.AssignVar creates gen-var from extract-var-info

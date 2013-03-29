@@ -1,0 +1,14 @@
+module assigninblock
+
+main bar;
+
+function void foo() {
+    Boolean b := false;
+    if (b) {
+        global.baz();
+        b := false;
+    } else {
+        global.bar();
+    }
+    global.print(a);
+}

@@ -1,0 +1,18 @@
+module tiny
+main bar ;
+function void bar ( ) {
+    try
+    {
+      debug.enter( "test001_tiny.alng" , "5,0,10,0" , "bar" ) ;
+      debug.step( "test001_tiny.alng" , "6,4,6,32" ) ;
+      system.print( "Hello World!" ) ;
+      debug.step( "test001_tiny.alng" , "7,4,7,33" ) ;
+      system.print( "Hello Foobar!" ) ;
+      debug.step( "test001_tiny.alng" , "9,4,9,10" ) ;
+      return ;
+    }
+    finally
+    {
+      debug.exit( "test001_tiny.alng" , "5,0,10,0" , "bar" ) ;
+    }
+}

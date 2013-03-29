@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<project name="ActionLanguage" default="all">
+        
+        <!-- Key input modules -->
+        <property name="sdfmodule" value="ActionLanguage"/>
+        <property name="metasdfmodule" value="Stratego-ActionLanguage"/>
+        <property name="esvmodule" value="ActionLanguage"/>
+        <property name="strmodule" value="actionlanguage"/>
+    
+        <!-- Project directories -->
+        <property name="trans" location="trans"/>
+        <property name="src-gen" location="editor/java"/>
+        <property name="syntax" location="syntax"/>
+        <property name="include" location="include"/>
+        <property name="lib" location="lib"/>
+        <property name="build" location="bin"/>
+        <property name="dist" location="bin/dist"/>
+        
+        <!-- Imports -->
+        <property name="build.sdf.imports" value=""/>
+        <property name="build.stratego.args" value="
+                        --library
+                        -I &quot;${trans}&quot;
+                        -I &quot;${basedir}&quot;
+                        -la stratego-lib -la stratego-sglr -la stratego-gpp -la stratego-xtc -la stratego-aterm"/>
+        
+        <!-- Optional: external .def and .jar locations
+        <property name="externaldef" location="syntax/${sdfmodule}.def"/>
+        <property name="externaljar" value="utils/lib.jar"/>
+        <property name="externaljarflags" value="-la org.strategoxt.imp.debug.instrumentation.trans"/>
+        -->
+    <!--<property name="externaljarx" value="utils/dsldi-java.jar" />-->
+	<!--
+    <property name="externaljar" value="utils/dsldi.jar"/>
+    <property name="externaljarflags" value="-la org.strategoxt.imp.debug.instrumentation.trans"/>
+	-->
+	
+	<!--
+[javac] 1. ERROR in .../org.languages.alng.editor/editor/java/trans/extract_function_info_0_0.java (at line 44)
+[javac]  term = $G$E$T_$D$S$L_$P$R$O$G$R$A$M_$F$I$L$E$N$A$M$E_0_0.instance.invoke(context, term);
+[javac]         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[javac] $G$E$T_$D$S$L_$P$R$O$G$R$A$M_$F$I$L$E$N$A$M$E_0_0 cannot be resolved
+[javac] 1 problem (1 error)
+<javac classpath="utils/strategoxt.jar:${src-gen}${externaljarimport1}${externaljarimport2}${java.jar.classpath}" 
+    srcdir="${src-gen}" 
+    includes="trans/**" 
+    destdir="${build}" 
+    source="1.5" 
+    target="1.5" 
+    debug="on"/>
+	-->
+<!-- include the libdsldi.jar, but when the plugin is deployed we get errors because the jar is not on the classpath -->
+<!--
+	<property name="externaljarx" value="lib/libdsldi.jar" />
+	<property name="externaljarflags" value="-la org.strategoxt.imp.debug.instrumentation.trans" />
+-->	
+	<property name="externaljarx" value="utils/libdsldi.jar" />
+	<property name="externaljarflags" value="-la org.strategoxt.imp.debug.instrumentation.trans" />
+	
+    <!-- Environment configuration for command-line builds -->
+    <condition property="build.strategoxt.sdf" value="${eclipse.spoofaximp.nativeprefix}" else="">
+        <isset property="eclipse.spoofaximp.nativeprefix"/>
+    </condition>
+    <property name="build.strategoxt.stratego" location="${user.home}/.nix-profile/bin"/>
+
+    <import file="build.generated.xml"/>
+
+    <!-- Main target -->
+    <target name="all" depends="update-libs, spoofaximp.default.jar"/>
+	
+	<property name="interfaces.jar" location="../org.spoofax.debug.interfaces.java/build/jar/org.spoofax.debug.interfaces.java.jar" />
+	<property name="interfaces.java.jar" location="../org.spoofax.debug.interfaces/build/jar/org.spoofax.debug.interfaces.jar" />
+	<property name="alngruntime.jar" location="../org.languages.alng.runtime/build/jar/alngruntime.jar" />
+	
+	<target name="update.alngruntime.jars">
+		<copy 
+			file="${interfaces.jar}" 
+			todir="lib/runtime"/>
+      <copy 
+            file="${interfaces.java.jar}" 
+            todir="lib/runtime"/>
+        <copy 
+            file="${alngruntime.jar}" 
+            todir="lib/runtime"/>
+
+			
+	</target>
+	
+	<target name="update-libs" depends="copy-dsldi-jars, copy-dsldi-rtree">
+	</target>
+	
+	<property name="lib.dsldi.dir" location="utils" />
+	<loadproperties srcFile="config.properties" />
+	
+	<target name="copy-dsldi-jars">
+	    <echo message="updating dsldi..."/>
+	        <mkdir dir="${lib.dsldi.dir}"/>
+	        <copy todir="${lib.dsldi.dir}" preservelastmodified="true" overwrite="true">
+	            <fileset dir="${dsldi.home}/dist" />
+	        </copy>
+	</target>
+	
+    <target name="copy-dsldi-rtree">
+        <copy file="${dsldi.home}/include/libdsldi.rtree" todir="lib" />
+    </target>
+	
+	<target name="generate-dsldi-aterm">
+		<!-- convert the dsldi to an ATerm -->
+	</target>
+	
+</project>

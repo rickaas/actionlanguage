@@ -1,0 +1,13 @@
+module ifblock
+
+main bar;
+
+function void foo() {
+    Boolean b := false;
+    if (b) {
+        global.baz();
+    } else {
+        global.bar();
+    }
+    global.print(a);
+}

@@ -1,0 +1,40 @@
+module term-io 
+
+language ActionLanguage
+
+test assign in var and declaration [[
+module example 
+entity User { 
+    name : String 
+    
+    function void foo(String arg1) {
+        Boolean b := false;
+        b := true;
+        Integer integer := 3;
+        Integer result := integer * 5;
+        result := integer * 5;
+    }
+}
+]] parse to Module(
+      "example"
+    , [ Entity(
+          "User"
+        , [ Property("name", Type("String"))
+          , FunctionDeclVoid(
+              "foo"
+            , [Argdef(Type("String"), "arg1")]
+            , [ Declaration(Type("Boolean"), "b", Some(Bool("false")))
+              , AssignVar("b", Bool("true"))
+              , Declaration(Type("Integer"), "integer", Some(Int("3")))
+              , Declaration(
+                  Type("Integer")
+                , "result"
+                , Some(Times(Var("integer"), Int("5")))
+                )
+              , AssignVar("result", Times(Var("integer"), Int("5")))
+              ]
+            )
+          ]
+        )
+      ]
+    )

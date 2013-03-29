@@ -1,0 +1,15 @@
+module example
+
+main main;
+
+function void main() {
+    bar := 5 + 6;
+    baz := baz(bar);
+    result := baz + bar;
+    print(result);
+}
+
+function void baz(Integer value) {
+    bar := value + 22;
+    return bar;
+}

@@ -1,0 +1,16 @@
+module assigninblock
+
+main bar;
+
+function void bar() {
+    Boolean b := false;
+    {
+        system.print("b");
+        b := false;
+    }
+    {
+        b := true;
+    }
+    system.print(b);
+    return;
+}

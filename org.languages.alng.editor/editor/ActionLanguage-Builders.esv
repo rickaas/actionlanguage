@@ -1,0 +1,37 @@
+module ActionLanguage-Builders
+
+imports ActionLanguage-Builders.generated
+
+builders
+                                                                                   
+  // This file can be used for custom analysis, builder and refactoring rules.     
+  //                                                                               
+  // See the imported file for a brief introduction and examples.                  
+
+builders
+                                                                                                              
+  provider : include/actionlanguage.jar                                                                     
+  provider : include/actionlanguage-java.jar                                                                  
+  provider : utils/libdsldi.jar
+  provider : utils/dsldi-java.jar
+
+  observer : editor-analyze                                                                                   
+                                                                                                              
+  builder  : "Generate Java code (for selection)"   = generate-java (openeditor) (realtime)                   
+  builder  : "Show abstract syntax (for selection)" = generate-aterm (openeditor) (realtime) (meta) (source)  
+                                                                                                              
+  builder  : "Show instrumented code" = instrument-single-file (openeditor) (meta) (source)
+
+  builder : "Run Program" = run-program (openeditor) (source)// runs the program as-is
+  builder : "Debug Program" = debug-program (openeditor) (source) (meta) // instruments the program with debug-information and then runs it
+
+refactorings
+
+  pretty-print : pp-actionlanguage-string
+
+  refactoring ID : "Rename Entity" = rename-entity (source) (cursor)
+    shortcut : "org.eclipse.jdt.ui.edit.text.java.rename.element"
+    input
+      identifier : "new name" = ""
+
+  // on save: generate-java

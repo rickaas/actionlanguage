@@ -1,0 +1,37 @@
+module term-io 
+
+language ActionLanguage
+
+// 
+// test sel definition operators [[
+//     
+// instrumentation
+// 
+// 
+// ]] run write-to-string to "SEL(InstrBlock([]))"
+
+test write to string 1
+!Enter()
+; write-to-string => "Enter"
+  
+test write to string 2
+!Enter("foo","bar")
+; write-to-string => "Enter(\"foo\",\"bar\")"
+  
+  
+test read from string 1
+!"Enter()"
+; read-from-string => Enter
+  
+test read from string 2
+!"Enter(foo,bar)"
+; read-from-string => Enter(foo,bar)
+  
+test ReadFromFile 1
+!"test/tests/parsing/var_use.aterm"
+; ReadFromFile
+  
+// test ReadFromFile 2
+// !"test/examples/var_use.aterm"
+// ; ReadFromFile
+// ; pp-aterm

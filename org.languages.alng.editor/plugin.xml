@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?eclipse version="3.0"?>
+
+<plugin>
+       <extension point="org.eclipse.imp.runtime.languageDescription">
+          <language extensions="alng" description="ActionLanguage" language="ActionLanguage" derivedFrom="DynamicRoot" validator="org.languages.alng.ActionLanguageValidator" validatorClass="org.languages.alng.ActionLanguageValidator"></language>
+       </extension>
+       <extension id="org.languages.alng.parser" name="ActionLanguage Parser" point="org.eclipse.imp.runtime.parser">
+          <parser class="org.languages.alng.ActionLanguageParseController" language="ActionLanguage">
+          </parser>
+       </extension>    
+    </plugin>

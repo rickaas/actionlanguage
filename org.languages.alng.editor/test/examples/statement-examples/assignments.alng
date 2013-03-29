@@ -1,0 +1,25 @@
+module example
+
+main bar;
+
+entity User {
+    name     : String
+    mother   : User
+}
+
+function void bar() {
+    User child := new User;
+    child.name := "Child";
+    
+    User mother := new User;
+    mother.name := "Mother";
+    child.mother := mother;
+    
+    User grandmother := new User;
+    grandmother.name := "GrandMother";
+    child.mother.mother := grandmother;
+    
+    system.print(child.name);
+    system.print(child.mother.name);
+    system.print(child.mother.mother.name);
+}

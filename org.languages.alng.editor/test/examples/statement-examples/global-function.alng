@@ -1,0 +1,12 @@
+module example
+
+main bar;
+
+function void bar()
+{
+    system.print(global.bar2(3));
+}
+
+function Integer bar2(Integer thing) {
+    return thing*2;
+}

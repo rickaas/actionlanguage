@@ -1,0 +1,10 @@
+module example
+
+main bar;
+
+function Integer bar() {
+    {
+        system.print("bar2");
+    }
+    return 2;
+}

@@ -1,0 +1,112 @@
+module parse_qualifier_fragments
+
+language ActionLanguage
+
+test entity property
+[[
+module foo
+
+function void foo()
+{
+    User dora := new User;
+    String myName := dora.name;
+}
+
+]]
+
+test entity property property
+[[
+module foo
+
+function void foo()
+{
+    User dora := new User;
+    String myName := dora.mother.name;
+}
+
+]]
+
+test entity property property property
+[[
+module foo
+
+function void foo()
+{
+    User dora := new User;
+    String myName := dora.mother.mother.name;
+}
+
+]]
+
+
+test entity function
+[[
+module foo
+
+function void foo()
+{
+    User dora := new User;
+    String myName := dora.getMyName();
+}
+
+]]
+
+test entity property function
+[[
+module foo
+
+function void foo()
+{
+    User dora := new User;
+    String myName := dora.mother.getMyName();
+}
+
+]]
+
+test entity property property function
+[[
+module foo
+
+function void foo()
+{
+    User dora := new User;
+    String myName := dora.mother.mother.getMyName();
+}
+
+]]
+
+test entity function function
+[[
+module foo
+
+function void foo()
+{
+    User dora := new User;
+    String myName := dora.getMyMother().getMyName();
+}
+
+]]
+
+test entity function function function
+[[
+module foo
+
+function void foo()
+{
+    User dora := new User;
+    String myName := dora.getMyMother().getMyMother().getMyName();
+}
+
+]]
+
+test entity function property function
+[[
+module foo
+
+function void foo()
+{
+    User dora := new User;
+    String myName := dora.getMyMother().mother.getMyName();
+}
+
+]]

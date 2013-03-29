@@ -1,0 +1,18 @@
+module tryfinally
+
+main bar;
+
+function void foo() {
+    debug.step("alng_scripts/testcases/statements/tryfinally.alng" , "6,4,6,22" );
+    Boolean b := false;
+    debug.step("alng_scripts/testcases/statements/tryfinally.alng" , "7,4,11,4" );
+    try {
+        debug.step("alng_scripts/testcases/statements/tryfinally.alng" , "8,8,8,20" );
+        global.baz();
+    } finally {
+        debug.step("alng_scripts/testcases/statements/tryfinally.alng" , "10,8,10,20"  );
+        global.bar();
+    }
+    debug.step("alng_scripts/testcases/statements/tryfinally.alng" , "12,4,12,19"  );
+    global.print(a);
+}

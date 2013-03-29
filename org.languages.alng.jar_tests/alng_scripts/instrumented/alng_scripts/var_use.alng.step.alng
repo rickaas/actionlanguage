@@ -1,0 +1,82 @@
+module example
+main bar ;
+entity User {
+    name : String
+    password : String
+    homepage : URL
+    function void foo ( String arg1 , Integer arg2 , User arg3 ) {
+        
+          debug.step("alng_scripts/var_use.alng","11,8,11,28");
+          Integer integer := 3 ;
+        
+        
+          debug.step("alng_scripts/var_use.alng","12,8,12,37");
+          Integer result := integer * 5 ;
+        
+        
+          debug.step("alng_scripts/var_use.alng","13,8,13,26");
+          Boolean b := false ;
+        
+        
+        debug.step("alng_scripts/var_use.alng","14,8,18,8");
+        if ( b )
+        {
+          
+            debug.step("alng_scripts/var_use.alng","15,12,15,22");
+            this.baz();
+          
+        }
+        else
+        {
+          
+            debug.step("alng_scripts/var_use.alng","17,12,17,24");
+            global.bar();
+          
+        }
+    }
+    function String baz ( ) {
+        
+          debug.step("alng_scripts/var_use.alng","22,8,22,29");
+          global.print("User:");
+        
+        
+          debug.step("alng_scripts/var_use.alng","23,8,23,20");
+          return "BAZ" ;
+        
+    }
+}
+function void bar ( ) {
+    
+      debug.step("alng_scripts/var_use.alng","28,4,28,42");
+      global.print("Global print FFFFFFF g");
+    
+    
+      debug.step("alng_scripts/var_use.alng","29,4,29,22");
+      User u := new User ;
+    
+    
+      debug.step("alng_scripts/var_use.alng","30,4,30,23");
+      String a := u.baz() ;
+    
+    
+      debug.step("alng_scripts/var_use.alng","31,4,31,19");
+      global.print(a);
+    
+}
+function Integer bar2 ( Integer thing ) {
+    
+      debug.step("alng_scripts/var_use.alng","35,4,35,41");
+      global.print("Print thing: "+thing);
+    
+    
+      debug.step("alng_scripts/var_use.alng","36,4,36,12");
+      return 2 ;
+    
+}
+entity BlogPosting {
+    poster : User
+    body : String
+}
+entity URL {
+    location : String
+}

@@ -1,0 +1,173 @@
+module parse_qualifier
+
+language ActionLanguage
+
+test qualifier calls 1 [[
+module example 
+entity User {
+     name : String
+     mother : User
+     
+     function void hello()
+     {
+         global.print("Hello " + name);
+     }
+     
+     function String getMyMother()
+     {
+         return mother;
+     }
+}
+]]
+
+test qualifier calls 2 [[
+module example 
+entity User {
+     name : String
+     mother : User
+     
+     function void hello()
+     {
+         global.print("Hello " + name);
+     }
+     
+     function String getMyMother()
+     {
+         return mother;
+     }
+}
+
+function void foo()
+{
+}
+]]
+
+test qualifier calls 3 [[
+module example 
+entity User {
+     name : String
+     mother : User
+     
+     function void hello()
+     {
+         global.print("Hello " + name);
+     }
+     
+     function String getMyMother()
+     {
+         return mother;
+     }
+}
+
+function void foo()
+{
+    User dora := new User;
+    dora.name := "Dora";
+
+}
+]]
+
+test qualifier calls 4 [[
+module example 
+entity User {
+     name : String
+     mother : User
+     
+     function void hello()
+     {
+         global.print("Hello " + name);
+     }
+     
+     function String getMyMother()
+     {
+         return mother;
+     }
+}
+
+function void foo()
+{
+    User dora := new User;
+    dora.name := "Dora";
+    dora.hello();
+    
+    String myName := dora.name;
+    
+    User myMother := dora.getMyMother();
+}
+]]
+
+test qualifier calls 5 [[
+module example 
+entity User {
+     name : String
+     mother : User
+     
+     function void hello()
+     {
+         global.print("Hello " + name);
+     }
+     
+     function String getMyMother()
+     {
+         return mother;
+     }
+}
+
+function void foo()
+{
+    User dora := new User;
+    dora.name := "Dora";
+    
+    User ingrid := new User;
+    ingrid.name := "Ingrid";
+    ingrid.mother := dora;
+    
+    User ricky := new User;
+    ricky.name := "Ricky";
+    ricky.mother := ingrid;
+    
+
+}
+]]
+
+test qualifier calls 6 [[
+module example 
+entity User {
+     name : String
+     mother : User
+     
+     function void hello()
+     {
+         global.print("Hello " + name);
+     }
+     
+     function String getMyMother()
+     {
+         return mother;
+     }
+}
+
+function void foo()
+{
+    User dora := new User;
+    dora.name := "Dora";
+    
+    User ingrid := new User;
+    ingrid.name := "Ingrid";
+    ingrid.mother := dora;
+    
+    User ricky := new User;
+    ricky.name := "Ricky";
+    ricky.mother := ingrid;
+    
+    
+    
+    ricky.hello();
+    ricky.mother.hello();
+    ricky.mother.mother.hello();
+    
+    u.getMyMother().hello();
+    
+    String myName := u.name;
+}
+]]

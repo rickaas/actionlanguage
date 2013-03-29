@@ -1,0 +1,17 @@
+module example
+
+main bar;
+
+function void bar()
+{
+    bar2(3);
+}
+
+function Integer bar2(Integer thing) {
+    if (3 > 0) {
+        system.print("3 > 0");
+    } else {
+        system.print("else");
+    }
+    return 4;
+}

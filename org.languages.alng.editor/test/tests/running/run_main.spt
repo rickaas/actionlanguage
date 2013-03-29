@@ -1,0 +1,17 @@
+module run_main
+
+language ActionLanguage
+
+test run main function [[
+
+module simplecalc
+
+main bar;
+
+function void bar() {
+    global.print("Global print FFFFFFF _P");
+//    global.print(a);
+}
+    
+    
+]] run run-program-ast to "Global print FFFFFFF _P"

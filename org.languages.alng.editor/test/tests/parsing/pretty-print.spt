@@ -1,0 +1,192 @@
+module pretty-print
+
+language ActionLanguage
+
+// pp-actionlanguage-string puts everythin one a single line...
+
+test test try finally printing [[
+module example
+
+main bar;
+
+function Integer bar2(Integer thing) {
+    try {
+        debug.enter("bar2");
+        return 2;
+    } finally {
+        debug.exit("bar2");
+    }
+}
+]] 
+// run pp-actionlanguage-string to [[
+// module example 
+// main bar ; 
+// function Integer bar2 ( Integer thing ) { 
+//     try 
+//     { 
+//         debug.enter("bar2") ; 
+//         return 2 ; 
+//     } 
+//     finally 
+//     { 
+//         debug.exit("bar2") ; 
+//     } 
+// }
+// ]]
+
+test test function printing [[
+module example
+
+main bar;
+
+function Integer bar2(Integer thing) {
+        global.enter("bar2");
+        return 2;
+}
+]] run pp-actionlanguage-string 
+// to 
+// "
+// module example
+// main bar ;
+// function Integer bar2 ( Integer thing ) {
+//     global.enter(\"bar2\");
+//     return 2 ;
+// }
+// "
+
+test test entity printing [[
+module example
+
+main bar;
+
+entity BlogPosting {
+    poster : String
+    body   : String
+}
+]] run pp-actionlanguage-string 
+to 
+"
+module example
+main bar ;
+entity BlogPosting {
+    poster : String
+    body : String
+}
+"
+
+test test entity printing with method [[
+module example
+
+main bar;
+
+entity BlogPosting {
+    poster : String
+    body   : String
+    
+    function String baz() {
+        global.print("User:");
+        return "BAZ";
+    }
+}
+]] run pp-actionlanguage-string 
+// to 
+// "
+// module example
+// main bar ;
+// entity BlogPosting {
+//     poster : String
+//     body : String
+//     function String baz ( ) {
+//         global.print(\"User:\");
+//         return \"BAZ\" ;
+//     }
+// }
+// "
+
+test pp with var assignment [[
+module example
+
+main bar;
+
+entity BlogPosting {
+    poster : String
+    body   : String
+    
+    function String baz() {
+        bar := false;
+        return "BAZ";
+    }
+}
+]] run pp-actionlanguage-string 
+// to 
+// "
+// module example
+// main bar ;
+// entity BlogPosting {
+//     poster : String
+//     body : String
+//     function String baz ( ) {
+//         bar := false ;
+//         return \"BAZ\" ;
+//     }
+// }
+// "
+
+test pp with var declaration with initial value
+[[
+module example
+
+main bar;
+
+entity BlogPosting {
+    poster : String
+    body   : String
+    
+    function String baz() {
+        Boolean b := false;
+        return "BAZ";
+    }
+}
+]] run pp-actionlanguage-string 
+// to 
+// "
+// module example
+// main bar ;
+// entity BlogPosting {
+//     poster : String
+//     body : String
+//     function String baz ( ) {
+//         Boolean b := false ;
+//         return \"BAZ\" ;
+//     }
+// }
+// "
+
+test pp with var declaration without initial value [[
+module example
+
+main bar;
+
+entity BlogPosting {
+    poster : String
+    body   : String
+    
+    function String baz() {
+        Boolean b;
+        return "BAZ";
+    }
+}
+]] run pp-actionlanguage-string 
+// to 
+// "
+// module example
+// main bar ;
+// entity BlogPosting {
+//     poster : String
+//     body : String
+//     function String baz ( ) {
+//         Boolean b ;
+//         return \"BAZ\" ;
+//     }
+// }
+// "

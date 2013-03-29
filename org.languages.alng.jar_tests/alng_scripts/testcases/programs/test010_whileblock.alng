@@ -1,0 +1,13 @@
+module whileblock
+
+main bar;
+
+function void bar() {
+    Integer index := 0;
+    while(index < 10)
+    {
+        index := index + 1;
+    }
+    system.print(index);
+    return;
+}

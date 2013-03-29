@@ -1,0 +1,54 @@
+module instrument/init
+
+imports
+    libstratego-lib
+    
+imports
+    lib/libdsldi
+    
+imports
+    instrument/-
+    util
+    
+strategies
+    
+    init-config =
+        <log-info(|"Initializing ActionLanguage debug instrumentation...")> ""
+        
+        ; ext-register-extract-strategy(extract-statement-info|"extract-statement-info")
+        ; ext-register-extract-strategy(extract-function-info|"extract-function-info")
+        ; ext-register-extract-strategy(extract-function-argument-info|"extract-function-argument-info")
+        ; ext-register-extract-strategy(extract-var-info|"extract-var-info")
+          
+        ; ext-register-gen-strategy(gen-step|"gen-step")
+        ; ext-register-gen-strategy(gen-enter|"gen-enter")
+        ; ext-register-gen-strategy(gen-exit|"gen-exit")
+        ; ext-register-gen-strategy(gen-function-argument|"gen-function-argument")
+        ; ext-register-gen-strategy(gen-var|"gen-var")
+        
+        ; <SET-LANGUAGE-ID> "ActionLanguage"
+        ; <SET-POST-INSTRUMENTATION-NAME> "actionlanguage-post-instrumentation"
+        ; ext-register-post-instrumentation-strategy(actionlanguage-post-instrumentation|"actionlanguage-post-instrumentation")
+            
+        ; <add-dsl-specific-write-file> ("ActionLanguage", "write-actionlanguage-as-dsl")
+        ; ext-register-write-strategy(write-actionlanguage-as-dsl|"write-actionlanguage-as-dsl")
+          
+        ; <add-dsl-specific-parse-file> ("ActionLanguage", "parse-actionlanguage-as-dsl")
+        ; ext-register-parse-strategy(parse-actionlanguage-as-dsl|"parse-actionlanguage-as-dsl")
+          
+        ; <log-info(|"Initializing ActionLanguage debug instrumentation complete")> ""
+          
+    override filter-dirs = 
+        ?paths*
+        //; log-vomit(|"Override filter-dirs ")
+        ; filter(not(is-hidden-file))
+        ; proceed
+    
+    is-hidden-file :
+        filename -> filename
+        where
+            <base-filename; string-starts-with(|".")> filename
+        // filter-dirs :
+        // paths* -> dirs*
+        // with
+        //  dirs* := <filter(file-exists ; filemode ; isdir)> paths*

@@ -1,0 +1,13 @@
+module tryfinally
+
+main bar;
+
+function void foo() {
+    Boolean b := false;
+    try {
+        global.baz();
+    } finally {
+        global.bar();
+    }
+    global.print(a);
+}

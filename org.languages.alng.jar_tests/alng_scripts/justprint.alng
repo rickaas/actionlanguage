@@ -1,0 +1,8 @@
+module justprint
+
+main bar;
+
+function void bar() {
+    global.print("Global print FFFFFFF g");
+//    global.print(a);
+}

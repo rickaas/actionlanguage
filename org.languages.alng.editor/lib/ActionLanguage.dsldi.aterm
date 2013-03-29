@@ -1,0 +1,41 @@
+SEL(
+  InstrBlock(
+    [ Link(
+        Step()
+      , SortAndConstructor(Sort("Statement"), Empty())
+      , StrategyRef("gen-step")
+      , StrategyRef("extract-statement-info")
+      )
+    , Link(
+        Exit()
+      , SortAndConstructor(Sort("FunctionDecl"), Empty())
+      , StrategyRef("gen-exit")
+      , StrategyRef("extract-function-info")
+      )
+    , Link(
+        Var()
+      , SortAndConstructor(Sort("FunctionDecl"), Empty())
+      , StrategyRef("gen-function-argument")
+      , StrategyRef("extract-function-argument-info")
+      )
+    , Link(
+        Enter()
+      , SortAndConstructor(Sort("FunctionDecl"), Empty())
+      , StrategyRef("gen-enter")
+      , StrategyRef("extract-function-info")
+      )
+    , Link(
+        Var()
+      , SortAndConstructor(Sort("Statement"), Constructor("Declaration"))
+      , StrategyRef("gen-var")
+      , StrategyRef("extract-var-info")
+      )
+    , Link(
+        Var()
+      , SortAndConstructor(Sort("Statement"), Constructor("AssignVar"))
+      , StrategyRef("gen-var")
+      , StrategyRef("extract-var-info")
+      )
+    ]
+  )
+)

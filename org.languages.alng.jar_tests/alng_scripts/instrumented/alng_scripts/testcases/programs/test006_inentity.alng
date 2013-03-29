@@ -1,0 +1,68 @@
+module example
+main bar ;
+entity User {
+    name : String
+    password : String
+    function void foo ( String arg1 , Integer arg2 , User arg3 ) {
+        debug.var( "alng_scripts/testcases/programs/test006_inentity.alng" , "9,4,19,4" , "arg1" , arg1) ;
+        debug.var( "alng_scripts/testcases/programs/test006_inentity.alng" , "9,4,19,4" , "arg2" , arg2) ;
+        debug.var( "alng_scripts/testcases/programs/test006_inentity.alng" , "9,4,19,4" , "arg3" , arg3) ;
+        try
+        {
+          debug.enter( "alng_scripts/testcases/programs/test006_inentity.alng" , "9,4,19,4" , "foo" ) ;
+          debug.step( "alng_scripts/testcases/programs/test006_inentity.alng" , "10,8,10,28" ) ;
+          Integer integer := 3 ;
+          debug.var( "alng_scripts/testcases/programs/test006_inentity.alng" , "10,8,10,28" , "integer" , integer) ;
+          debug.step( "alng_scripts/testcases/programs/test006_inentity.alng" , "11,8,11,37" ) ;
+          Integer result := integer * 5 ;
+          debug.var( "alng_scripts/testcases/programs/test006_inentity.alng" , "11,8,11,37" , "result" , result) ;
+          debug.step( "alng_scripts/testcases/programs/test006_inentity.alng" , "12,8,12,26" ) ;
+          Boolean b := false ;
+          debug.var( "alng_scripts/testcases/programs/test006_inentity.alng" , "12,8,12,26" , "b" , b) ;
+          debug.step( "alng_scripts/testcases/programs/test006_inentity.alng" , "13,8,17,8" ) ;
+          if ( b )
+          {
+          }
+          else
+          {
+          }
+          debug.step( "alng_scripts/testcases/programs/test006_inentity.alng" , "18,8,18,14" ) ;
+          return ;
+        }
+        finally
+        {
+          debug.exit( "alng_scripts/testcases/programs/test006_inentity.alng" , "9,4,19,4" , "foo" ) ;
+        }
+    }
+    function String baz ( ) {
+        try
+        {
+          debug.enter( "alng_scripts/testcases/programs/test006_inentity.alng" , "21,4,24,4" , "baz" ) ;
+          debug.step( "alng_scripts/testcases/programs/test006_inentity.alng" , "22,8,22,29" ) ;
+          system.print( "User:" ) ;
+          debug.step( "alng_scripts/testcases/programs/test006_inentity.alng" , "23,8,23,20" ) ;
+          return "BAZ" ;
+        }
+        finally
+        {
+          debug.exit( "alng_scripts/testcases/programs/test006_inentity.alng" , "21,4,24,4" , "baz" ) ;
+        }
+    }
+}
+function void bar ( ) {
+    try
+    {
+      debug.enter( "alng_scripts/testcases/programs/test006_inentity.alng" , "27,0,33,0" , "bar" ) ;
+      debug.step( "alng_scripts/testcases/programs/test006_inentity.alng" , "29,4,29,22" ) ;
+      User u := new User ;
+      debug.var( "alng_scripts/testcases/programs/test006_inentity.alng" , "29,4,29,22" , "u" , u) ;
+      debug.step( "alng_scripts/testcases/programs/test006_inentity.alng" , "31,4,31,20" ) ;
+      u . foo ( "a" , 1 , u ) ;
+      debug.step( "alng_scripts/testcases/programs/test006_inentity.alng" , "32,4,32,10" ) ;
+      return ;
+    }
+    finally
+    {
+      debug.exit( "alng_scripts/testcases/programs/test006_inentity.alng" , "27,0,33,0" , "bar" ) ;
+    }
+}

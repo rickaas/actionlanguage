@@ -1,0 +1,94 @@
+module instrument/extract
+
+imports
+    include/ActionLanguage
+
+// sel imports
+imports
+  lib/libdsldi
+
+imports instrument/sel-al
+
+/**
+enter/exit: (filename, a,b,c,d, function-name)
+var: (filename, a,b,c,d, var-name)
+var: (filename, a,b,c,d, var-names*)
+step: (filename, a,b,c,d)
+*/
+rules
+
+    extract-function-info:
+        f -> debug-information
+        where
+        get-a-b-c-d ; ?(a,b,c,d) // (1-based, 0-based, 1-based, 0-based)
+        ; filename := <GET-DSL-PROGRAM-FILENAME>
+        ; f-name := <get-function-name> f
+        ; debug-information := (filename, a, b, c, d, f-name)
+        //; None()
+        //; if <has-annos> matched-term then <get-annos> matched-term end
+
+//    "function" Type ID "(" {ArgDef ","}* ")" "{" Statement* "}" -> FunctionDecl {cons("FunctionDecl"), avoid}
+    get-function-name:
+        f @ FunctionDecl(type, name, arg-defs*, statements*) -> name
+        
+//    "function" "void" ID "(" {ArgDef ","}* ")" "{" Statement* "}" -> FunctionDecl {cons("FunctionDeclVoid")}
+    get-function-name:
+        f @ FunctionDeclVoid(name, arg-defs*, statements) -> name
+        
+    extract-statement-info :
+        s -> debug-information
+        where
+        get-a-b-c-d; ?(a,b,c,d) // (1-based, 0-based, 1-based, 0-based)
+        ; filename := <GET-DSL-PROGRAM-FILENAME>
+        ; debug-information := (filename, a, b, c, d)
+
+    // Declaration      : Type * ID * Option(Exp0) -> Statement
+    extract-var-info :
+        Declaration(type, var-name, Some(optional-value)) -> debug-information
+        where
+        get-a-b-c-d ; ?(a,b,c,d) // (1-based, 0-based, 1-based, 0-based)
+        ; filename := <GET-DSL-PROGRAM-FILENAME>
+        ; debug-information := (filename, a, b, c, d, var-name)
+          
+    // Declaration      : Type * ID * Option(Exp0) -> Statement
+    extract-var-info :
+        Declaration(type, var-name, None()) -> debug-information
+        where
+        get-a-b-c-d ; ?(a,b,c,d) // (1-based, 0-based, 1-based, 0-based)
+        ; filename := <GET-DSL-PROGRAM-FILENAME>
+        ; debug-information := (filename, a, b, c, d, var-name)
+          
+    // Var ":=" Exp         -> Statement {cons("AssignVar")}
+    // TODO: also support property setters
+    extract-var-info :
+        AssignVar(var-name, value) -> debug-information
+        where
+        get-a-b-c-d ; ?(a,b,c,d) // (1-based, 0-based, 1-based, 0-based)
+        ; filename := <GET-DSL-PROGRAM-FILENAME>
+        ; debug-information := (filename, a, b, c, d, var-name)
+          
+    extract-function-argument-info :
+        f -> debug-information
+        where
+        get-a-b-c-d ; ?(a,b,c,d) // (1-based, 0-based, 1-based, 0-based)
+        ; filename := <GET-DSL-PROGRAM-FILENAME>
+        ; var-names* := <get-function-argument-names> f
+        ; debug-information := (filename, a, b, c, d, var-names*)
+
+
+//    "function" Type ID "(" {ArgDef ","}* ")" "{" Statement* "}" -> FunctionDecl {cons("FunctionDecl"), avoid}
+//    Type ID -> ArgDef {cons("Argdef")}
+    get-function-argument-names :
+        f @ FunctionDecl(type, name, arg-defs*, statements*) -> arg-names*
+        where
+        	arg-names* := <map(get-argdef-name)> arg-defs*
+        
+//    "function" "void" ID "(" {ArgDef ","}* ")" "{" Statement* "}" -> FunctionDecl {cons("FunctionDeclVoid")}
+//    Type ID -> ArgDef {cons("Argdef")}
+    get-function-argument-names :
+        f @ FunctionDeclVoid(name, arg-defs*, statements) -> arg-names*
+        where
+            arg-names* := <map(get-argdef-name)> arg-defs*
+
+    get-argdef-name :
+        Argdef(_, name) -> name

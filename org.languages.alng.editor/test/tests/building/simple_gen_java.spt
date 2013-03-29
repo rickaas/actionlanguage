@@ -1,0 +1,17 @@
+module run_main
+
+language ActionLanguage
+
+test build java [[
+    
+module simplecalc
+
+main bar;
+
+function void bar() {
+    global.print("Global print FFFFFFF g");
+//    global.print(a);
+}
+    
+    
+]] build generate-java

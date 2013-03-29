@@ -1,0 +1,73 @@
+module example
+main bar ;
+entity User {
+    name : String
+    password : String
+    homepage : URL
+    function void foo ( String arg1 , Integer arg2 , User arg3 ) {
+        
+          Integer integer := 3 ;
+          debug.var("alng_scripts/var_use.alng","11,8,11,28","integer", integer);
+        
+        
+          Integer result := integer * 5 ;
+          debug.var("alng_scripts/var_use.alng","12,8,12,37", "result", result);
+        
+        
+          Boolean b := false ;
+          debug.var("alng_scripts/var_use.alng","13,8,13,26", "b", b);
+        
+        if ( b )
+        {
+          
+            this.baz();
+          
+        }
+        else
+        {
+          
+            global.bar();
+          
+        }
+    }
+    function String baz ( ) {
+        
+          global.print("User:");
+        
+        
+          return "BAZ" ;
+        
+    }
+}
+function void bar ( ) {
+    
+
+      global.print("Global print FFFFFFF g");
+    
+    
+      User u := new User ;
+      debug.var("alng_scripts/var_use.alng","29,4,29,22", "u", u);
+    
+    
+      String a := u.baz() ;
+      debug.var("alng_scripts/var_use.alng","30,4,30,23", "a", a);
+    
+    
+      global.print(a);
+    
+}
+function Integer bar2 ( Integer thing ) {
+    
+      global.print("Print thing: "+thing);
+    
+    
+      return 2 ;
+    
+}
+entity BlogPosting {
+    poster : User
+    body : String
+}
+entity URL {
+    location : String
+}

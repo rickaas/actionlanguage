@@ -1,0 +1,92 @@
+module instrument/sel-al
+// this module contains the high-level strategies required for sel.
+// for extract transformations of the ActionLanguage see extract.str
+
+
+// some default imports
+imports
+  libstratego-lib
+  libstratego-sglr
+  libstratego-gpp
+
+// sel imports
+imports
+  lib/libdsldi
+
+imports
+  include/ActionLanguage // The DSL syntax
+
+// ActionLanguage specific instrumentation strategies
+imports
+    instrument/extract // metadata extraction strategies
+    instrument/gen // debug event generation strategies
+    instrument/init
+    
+strategies
+
+    init-dsldi =
+        import-term(lib/ActionLanguage.dsldi.aterm) // can only read aterms, plain-text is not supported
+        ; ?SEL(_)
+        ; SET-SEL-DEFINITION
+          
+    instrument-ast = ?(filename, ast)
+        // load the dsldi
+        ; init-dsldi
+        ; init-config
+          
+        ; <SET-OUTPUT-BASEPATH> "test/generated_programs"
+        ; !(filename, ast)
+        //; try-instrument // return: Success(source-location, generated-location), use <GET-DSL-PROGRAM-SOURCE> to get the ast
+        ; instrument-program-aterm <+ !"Instrumentation failed"
+
+strategies
+    
+        get-a-b-c-d = 
+             ?term
+             //; al-term-location
+             ; get-term-origin-location-tuple // from libdsldi
+             // RL; the location info seems to be 0-based
+             ; ?tuple
+             ; make-one-based-linenumbers-location // convert to 1-based line numbers
+             // RL: but the toplevel term has a wrong line number, I don't know if that's a in the parser bug or not...
+             /*
+             ; if needs-location-correction then
+                   !tuple; correct-location
+               else
+                   !tuple
+               end
+             */
+
+        // al-term-location = 
+        //   // origin-location  = prim("SSL_EXT_origin_location", <id>)
+        //   // origin-location // from lib/libdsldi.rtree
+        //   // try to use the primitive
+        //   prim("SSL_EXT_origin_location", <id>)
+        //   < id // success
+        //   + fail ; err(|"Could not extract origin information ")// fail
+        //   
+        // ; ?(a,b,c,d) // (1-based, 0-based, 1-based, 0-based)
+          
+    // Let's check if the location of the toplevel AST starts at linenumber zero, 
+    // if it does it needs to be corrected.
+    //
+    // RL: When executing not in Eclipse (e.g. in a JUnit test) 
+    // the origin-location has 1-based linenumbers
+    // but when executed inside Eclipse/Spoofax the linenumbers are 0-based
+    // This only holds for the top-level term
+    needs-location-correction = is-top-level-term
+        //GET-TOP-LEVEL-LOCATION; debug(!"TOP: "); ?(a,b,c,d); !a ; debug(!"A: "); ?0
+    
+    is-top-level-term = ?term
+        ; prim("SSL_EXT_clone_and_set_parents", <id>) // RL: does nothing?
+        //; debug(!"cloned")
+        ; not(prim("SSL_EXT_get_parent", <id>)) // RL: SSL_EXT_get_parent always fails
+        //; debug(!"parent ")
+
+    walk-terms = ?ast 
+    ;log-vomit(|"P: ")
+   ; topdown(
+         log-vomit(|"S: ")
+         ; where(get-term-origin-location-tuple;log-vomit(|"LOC: "))
+         ; log-vomit(|"E: ")
+     )

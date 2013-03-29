@@ -1,0 +1,13 @@
+module ifblock
+
+main bar;
+function void bar()
+{
+    Integer i := global.foo();
+    system.print("i="+i);
+    return;
+}
+function Integer foo() {
+    Integer a := 4;
+    return 4 * 4 * 6;
+}

@@ -1,0 +1,39 @@
+module tryfinally
+main foo ;
+function void foo ( ) {
+    try
+    {
+      debug.enter( "alng_scripts/testcases/programs/test009_tryfinally.alng" , "5,0,17,0" , "foo" ) ;
+      debug.step( "alng_scripts/testcases/programs/test009_tryfinally.alng" , "6,4,6,22" ) ;
+      Boolean b := false ;
+      debug.var( "alng_scripts/testcases/programs/test009_tryfinally.alng" , "6,4,6,22" , "b" , b) ;
+      debug.step( "alng_scripts/testcases/programs/test009_tryfinally.alng" , "7,4,14,4" ) ;
+      try
+      {
+        debug.step( "alng_scripts/testcases/programs/test009_tryfinally.alng" , "8,8,8,18" ) ;
+        b := false ;
+        debug.var( "alng_scripts/testcases/programs/test009_tryfinally.alng" , "8,8,8,18" , "b" , b) ;
+        debug.step( "alng_scripts/testcases/programs/test009_tryfinally.alng" , "9,8,9,61" ) ;
+        global.throwStuff( "Throw before b is set to true..." ) ;
+        debug.step( "alng_scripts/testcases/programs/test009_tryfinally.alng" , "10,8,10,17" ) ;
+        b := true ;
+        debug.var( "alng_scripts/testcases/programs/test009_tryfinally.alng" , "10,8,10,17" , "b" , b) ;
+      }
+      finally
+      {
+        debug.step( "alng_scripts/testcases/programs/test009_tryfinally.alng" , "12,8,12,39" ) ;
+        system.print( "Finally done..." ) ;
+        debug.step( "alng_scripts/testcases/programs/test009_tryfinally.alng" , "13,8,13,22" ) ;
+        Integer i := 9 ;
+        debug.var( "alng_scripts/testcases/programs/test009_tryfinally.alng" , "13,8,13,22" , "i" , i) ;
+      }
+      debug.step( "alng_scripts/testcases/programs/test009_tryfinally.alng" , "15,4,15,44" ) ;
+      system.print( "Exiting with value: " + b ) ;
+      debug.step( "alng_scripts/testcases/programs/test009_tryfinally.alng" , "16,4,16,10" ) ;
+      return ;
+    }
+    finally
+    {
+      debug.exit( "alng_scripts/testcases/programs/test009_tryfinally.alng" , "5,0,17,0" , "foo" ) ;
+    }
+}

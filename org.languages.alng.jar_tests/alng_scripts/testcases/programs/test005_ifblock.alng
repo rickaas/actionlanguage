@@ -1,0 +1,16 @@
+module ifblock
+
+main foo;
+
+function void foo() {
+    Boolean b := false;
+    if (b) {
+        b := false;
+        system.print("True");
+    } else {
+        system.print("False");
+    }
+    b := true;
+    system.print(b);
+    return;
+}

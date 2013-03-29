@@ -1,0 +1,64 @@
+Module(
+  "example"
+, [ Main("bar")
+  , Entity(
+      "User"
+    , [ Property("name", Type("String"))
+      , Property("password", Type("String"))
+      , Property("homepage", Type("URL"))
+      , FunctionDeclVoid(
+          "foo"
+        , [ Argdef(Type("String"), "arg1")
+          , Argdef(Type("Integer"), "arg2")
+          , Argdef(Type("User"), "arg3")
+          ]
+        , [ Assign(Type("Integer"), "integer", Int("3"))
+          , Assign(
+              Type("Integer")
+            , "result"
+            , Times(Var("integer"), Int("5"))
+            )
+          , Assign(Type("Boolean"), "b", Bool("false"))
+          , If(
+              Var("b")
+            , [Call("this", "baz", [])]
+            , [GlobalCall("bar", [])]
+            )
+          ]
+        )
+      , FunctionDecl(
+          Type("String")
+        , "baz"
+        , []
+        , [GlobalCall("print", FunctionArguments([String("\"User:\"")])), ReturnValue(String("\"BAZ\""))]
+        )
+      ]
+    )
+  , FunctionDeclVoid(
+      "bar"
+    , []
+    , [ GlobalCall("print", FunctionArguments([String("\"Global print\"")]))
+      , Assign(Type("User"), "u", NewEntity(Type("User")))
+      , Assign(
+          Type("String")
+        , "a"
+        , dotOperator(Var("u"), "baz", [])
+        )
+      , GlobalCall("print", [Var("a")])
+      ]
+    )
+  , FunctionDecl(
+      Type("Integer")
+    , "bar2"
+    , [Argdef(Type("Integer"), "thing")]
+    , [ GlobalCall("print", FunctionArguments([Plus(String("\"Print thing: \""), Var("thing"))]))
+      , ReturnValue(Int("2"))
+      ]
+    )
+  , Entity(
+      "BlogPosting"
+    , [Property("poster", Type("User")), Property("body", Type("String"))]
+    )
+  , Entity("URL", [Property("location", Type("String"))])
+  ]
+)

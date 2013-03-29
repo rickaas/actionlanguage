@@ -1,0 +1,6 @@
+instrumentation
+
+
+event enter at FunctionDecl._ creates gen-enter from extract-function-info
+event exit at FunctionDecl._ creates gen-exit from extract-function-info
+

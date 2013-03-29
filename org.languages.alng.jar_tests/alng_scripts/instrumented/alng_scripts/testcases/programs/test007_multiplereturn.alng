@@ -1,0 +1,38 @@
+module multiplereturn
+main foo ;
+function void foo ( ) {
+    try
+    {
+      debug.enter( "alng_scripts/testcases/programs/test007_multiplereturn.alng" , "5,0,8,0" , "foo" ) ;
+      debug.step( "alng_scripts/testcases/programs/test007_multiplereturn.alng" , "7,4,7,30" ) ;
+      system.print(global.bar());
+    }
+    finally
+    {
+      debug.exit( "alng_scripts/testcases/programs/test007_multiplereturn.alng" , "5,0,8,0" , "foo" ) ;
+    }
+}
+function String bar ( ) {
+    try
+    {
+      debug.enter( "alng_scripts/testcases/programs/test007_multiplereturn.alng" , "10,0,17,0" , "bar" ) ;
+      debug.step( "alng_scripts/testcases/programs/test007_multiplereturn.alng" , "11,4,11,28" ) ;
+      Boolean isValid := false ;
+      debug.var( "alng_scripts/testcases/programs/test007_multiplereturn.alng" , "11,4,11,28" , "isValid" , isValid) ;
+      debug.step( "alng_scripts/testcases/programs/test007_multiplereturn.alng" , "12,4,16,4" ) ;
+      if ( isValid )
+      {
+        debug.step( "alng_scripts/testcases/programs/test007_multiplereturn.alng" , "13,8,13,20" ) ;
+        return "Foo" ;
+      }
+      else
+      {
+        debug.step( "alng_scripts/testcases/programs/test007_multiplereturn.alng" , "15,8,15,20" ) ;
+        return "bar" ;
+      }
+    }
+    finally
+    {
+      debug.exit( "alng_scripts/testcases/programs/test007_multiplereturn.alng" , "10,0,17,0" , "bar" ) ;
+    }
+}

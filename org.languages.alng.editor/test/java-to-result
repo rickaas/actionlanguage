@@ -1,0 +1,10 @@
+#!/bin/bash
+echo Start Java program
+#pwd
+# $1: classpath containing class-files
+# $2: name of the class with the main method
+# $3: name of the output file
+#java -classpath $1 $2 > result.txt
+java -classpath $1 $2 > $3
+echo Finish Java program
+

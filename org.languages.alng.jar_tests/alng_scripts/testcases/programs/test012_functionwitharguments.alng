@@ -1,0 +1,16 @@
+module functionwitharguments
+
+main bar;
+function void bar()
+{
+    Integer i := 6;
+    system.print("i="+i);
+    Integer k := global.foo(i);
+    system.print("k="+k);
+    return;
+}
+function Integer foo(Integer k) {
+    Integer a := k * 4;
+    Integer i := 8;
+    return a * i * k;
+}

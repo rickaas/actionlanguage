@@ -1,0 +1,4 @@
+instrumentation
+
+// FunctionDecl-sort is used for global and entity functions
+event enter at FunctionDecl.FunctionDeclVoid creates gen-enter from extract-function-info

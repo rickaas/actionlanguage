@@ -1,0 +1,27 @@
+module example
+
+main bar;
+
+entity User {
+    name     : String
+    password : String
+    
+    function void foo(String arg1, Integer arg2, User arg3) {
+        Integer integer := 3;
+        debug.var("alng_scripts/testcases/statements/inentity.alng" , "10,8,10,28" ,"integer", integer);
+        Integer result := integer * 5;
+        debug.var("alng_scripts/testcases/statements/inentity.alng" , "11,8,11,37" ,"result", result);
+        Boolean b := false;
+        debug.var("alng_scripts/testcases/statements/inentity.alng" , "12,8,12,26" ,"b", b);
+        if (b) {
+            this.baz();
+        } else {
+            global.bar();
+        }
+    }
+  
+    function String baz() {
+        global.print("User:");
+        return "BAZ";
+    }
+}

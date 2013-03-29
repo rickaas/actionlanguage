@@ -1,0 +1,9 @@
+module noargs
+
+main bar;
+
+function void foo(Boolean b)
+{
+    debug.var("alng_scripts/testcases/fargs/onearg.alng" , "5,0,8,0", "b" , b);
+    global.print("foo");
+}

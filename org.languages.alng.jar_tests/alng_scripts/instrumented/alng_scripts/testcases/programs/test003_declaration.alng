@@ -1,0 +1,25 @@
+module declaration
+main bar ;
+function void bar ( ) {
+    try
+    {
+      debug.enter( "alng_scripts/testcases/programs/test003_declaration.alng" , "5,0,11,0" , "bar" ) ;
+      debug.step( "alng_scripts/testcases/programs/test003_declaration.alng" , "6,4,6,22" ) ;
+      Boolean b := false ;
+      debug.var( "alng_scripts/testcases/programs/test003_declaration.alng" , "6,4,6,22" , "b" , b ) ;
+      debug.step( "alng_scripts/testcases/programs/test003_declaration.alng" , "7,4,7,13" ) ;
+      Boolean c ;
+      debug.var( "alng_scripts/testcases/programs/test003_declaration.alng" , "7,4,7,13" , "c" , c ) ;
+      debug.step( "alng_scripts/testcases/programs/test003_declaration.alng" , "8,4,8,10" ) ;
+      c := b ;
+      debug.var( "alng_scripts/testcases/programs/test003_declaration.alng" , "8,4,8,10" , "c" , c ) ;
+      debug.step( "alng_scripts/testcases/programs/test003_declaration.alng" , "9,4,9,19" ) ;
+      system.print( c ) ;
+      debug.step( "alng_scripts/testcases/programs/test003_declaration.alng" , "10,4,10,10" ) ;
+      return ;
+    }
+    finally
+    {
+      debug.exit( "alng_scripts/testcases/programs/test003_declaration.alng" , "5,0,11,0" , "bar" ) ;
+    }
+}

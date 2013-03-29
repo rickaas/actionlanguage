@@ -1,0 +1,8 @@
+module justprint
+main bar ;
+function void bar ( ) {
+    
+      debug.step("alng_scripts/justprint.alng","6,4,6,42");
+      global.print("Global print FFFFFFF g");
+    
+}

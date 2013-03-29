@@ -1,0 +1,14 @@
+module tryfinally
+
+main bar;
+
+function void foo() {
+    Boolean b := false;
+    debug.var("alng_scripts/testcases/statements/tryfinally.alng" , "6,4,6,22" ,"b", b);
+    try {
+        global.baz();
+    } finally {
+        global.bar();
+    }
+    global.print(a);
+}

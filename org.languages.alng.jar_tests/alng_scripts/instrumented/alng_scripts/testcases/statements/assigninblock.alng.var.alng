@@ -1,0 +1,16 @@
+module assigninblock
+
+main bar;
+
+function void foo() {
+    Boolean b := false;
+    debug.var("alng_scripts/testcases/statements/assigninblock.alng", "6,4,6,22", "b", b);
+    if (b) {
+        global.baz();
+        b := false;
+        debug.var("alng_scripts/testcases/statements/assigninblock.alng", "9,8,9,18", "b", b);
+    } else {
+        global.bar();
+    }
+    global.print(a);
+}

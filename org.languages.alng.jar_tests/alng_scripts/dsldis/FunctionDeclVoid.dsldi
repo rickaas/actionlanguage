@@ -1,0 +1,6 @@
+instrumentation
+
+//event enter at StrategyDef._ creates gen-enter from extract-strategy-debug-info
+// FunctionDecl-sort is used for global and entity functions
+event enter at FunctionDecl._ creates gen-enter from extract-function-info
+event exit at FunctionDecl._ creates gen-exit from extract-function-info

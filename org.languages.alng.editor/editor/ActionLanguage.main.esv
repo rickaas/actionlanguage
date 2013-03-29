@@ -1,0 +1,16 @@
+module ActionLanguage.main
+
+imports ActionLanguage-Builders ActionLanguage-Colorer ActionLanguage-Completions ActionLanguage-Folding ActionLanguage-Outliner ActionLanguage-References ActionLanguage-Syntax
+
+language General properties
+                  
+  name          : ActionLanguage
+  id            : org.languages.alng
+  extends       : Root
+                  
+  description   : "Spoofax/IMP-generated editor for the ActionLanguage language"
+  url           : http://strategoxt.org
+                  
+  extensions    : alng
+  table         : include/ActionLanguage.tbl
+  start symbols : Start

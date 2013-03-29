@@ -1,0 +1,1 @@
+Module("justprint",[Main("bar"),FunctionDeclVoid("bar",[],[ExprStatement(GlobalCall("print",FunctionArguments([String("\"Global print FFFFFFF g\"")])))])])

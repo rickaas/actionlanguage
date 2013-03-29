@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/org.languages.alng.feature_0.0.1.201303161646.jar" id="org.languages.alng.feature" version="0.0.1.201303161646">
+      <category name="actionlanguage"/>
+   </feature>
+   <category-def name="actionlanguage" label="ActionLanguage">
+      <description>
+         Eclipse plugins for the ActionLanguage
+      </description>
+   </category-def>
+</site>

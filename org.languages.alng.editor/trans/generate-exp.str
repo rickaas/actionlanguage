@@ -1,0 +1,156 @@
+module generate-exp
+
+imports
+    include/ActionLanguage
+imports
+    generate
+    
+rules
+    gen-expr = 
+        internal-gen-expr // <+ debug(!"gen-expr - Failed at: ")
+
+rules
+// FunctionName FunctionArguments -> Exp {cons("FunctionCall")}
+    internal-gen-expr:
+        FunctionCall(None(), name, arg-values) ->
+        $[[name][arguments]]
+        where
+            name' := name
+            ; arguments := <gen-function-arguments> arg-values
+        
+// Exp      "." FunctionName FunctionArguments -> Exp {cons("FunctionCall")}
+    internal-gen-expr:
+        FunctionCall(Some(expr), name, arg-values) ->
+        $[[expr'].[name][arguments]]
+        where
+            expr' := <gen-expr> expr
+            ; name' := name
+            ; arguments := <gen-function-arguments> arg-values
+              
+// "global" "." FunctionName FunctionArguments -> Exp {cons("GlobalCall")}
+    // generate a global-function method call
+    internal-gen-expr:
+        GlobalCall(name, arg-values) ->
+        $[GlobalFunctions.instance.[name][arguments*]]
+        where
+            name' := name
+            ; arguments* := <gen-function-arguments> arg-values
+
+// "debug"  "." FunctionName FunctionArguments -> Exp {cons("DebugSystemCall")}
+    internal-gen-expr:
+        DebugSystemCall(name, arg-values) -> 
+        $[DebugFunctions.instance.[name'][arguments]]
+        where
+            name' := name
+            ; arguments := <gen-function-arguments> arg-values
+            
+// "system" "." FunctionName FunctionArguments -> Exp {cons("DebugSystemCall")}
+    internal-gen-expr:
+        SystemCall(name, arg-values) -> 
+        $[SystemFunctions.instance.[name'][arguments]]
+        where
+            name' := name
+            ; arguments := <gen-function-arguments> arg-values
+              
+    internal-gen-expr:
+        Getter(PropertyAccess(expr, propertyName)) 
+        -> $[[expr'].get_[propertyName']()]
+        where
+            expr' := <gen-expr> expr
+            ; propertyName' := propertyName
+              
+
+
+
+rules
+    internal-gen-expr:
+        NewEntity(Type(t)) -> $[new [t]()]
+
+    internal-gen-expr:
+        Var(name) -> $[[name]]
+        
+// primitive values
+rules
+    internal-gen-expr:
+        Int(value) -> $[[value]]
+        
+    internal-gen-expr:
+        String(value) -> $[[value]]
+        
+    internal-gen-expr:
+        Bool(value) -> $[[value]]
+                      
+
+
+
+rules // math and boolean expressions
+    
+    internal-gen-expr:
+        Times(l, r) -> $[([l'] * [r'])]
+        with
+            l' := <gen-expr> l
+            ; r' := <gen-expr> r
+              
+    internal-gen-expr:
+        Div(l, r) -> $[([l'] / [r'])]
+        with
+            l' := <gen-expr> l
+            ; r' := <gen-expr> r
+              
+    internal-gen-expr:
+        Mod(l, r) -> $[([left'] % [right'])]
+        with
+            left' := <gen-expr> l
+            ; right' := <gen-expr> r
+              
+    internal-gen-expr:
+        Plus(l, r) -> $[([l'] + [r'])]
+        with
+            l' := <gen-expr> l
+            ; r' := <gen-expr> r
+              
+    internal-gen-expr:
+        Minus(l, r) -> $[([l'] - [r'])]
+        with
+            l' := <gen-expr> l
+            ; r' := <gen-expr> r
+
+    internal-gen-expr:
+        Eq(lhs, rhs) -> $[[lhs'] == [rhs']]
+        with
+            lhs' := <gen-expr> lhs
+            ; rhs' := <gen-expr> rhs
+
+    internal-gen-expr:
+        LT(lhs, rhs) -> $[[lhs'] < [rhs']]
+        with
+            lhs' := <gen-expr> lhs
+            ; rhs' := <gen-expr> rhs
+
+    internal-gen-expr:
+        GT(lhs, rhs) -> $[[lhs'] > [rhs']]
+        with
+            lhs' := <gen-expr> lhs
+            ; rhs' := <gen-expr> rhs
+
+    internal-gen-expr:
+        LTEq(lhs, rhs) -> $[[lhs'] <= [rhs']]
+        with
+            lhs' := <gen-expr> lhs
+            ; rhs' := <gen-expr> rhs
+
+    internal-gen-expr:
+        GTEq(lhs, rhs) -> $[[lhs'] >= [rhs']]
+        with
+            lhs' := <gen-expr> lhs
+            ; rhs' := <gen-expr> rhs
+
+    internal-gen-expr:
+        NEq(lhs, rhs) -> $[[lhs'] != [rhs']]
+        with
+            lhs' := <gen-expr> lhs
+            ; rhs' := <gen-expr> rhs
+
+
+    internal-gen-expr:
+        x -> $[[x]]

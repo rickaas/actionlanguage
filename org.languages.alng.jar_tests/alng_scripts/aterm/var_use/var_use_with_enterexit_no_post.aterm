@@ -1,0 +1,110 @@
+Module(
+  "example"
+, [ Main("bar")
+  , Entity(
+      "User"
+    , [ Property("name", Type("String"))
+      , Property("password", Type("String"))
+      , Property("homepage", Type("URL"))
+      , FunctionDeclVoid(
+          "foo"
+        , [ Argdef(Type("String"), "arg1")
+          , Argdef(Type("Integer"), "arg2")
+          , Argdef(Type("User"), "arg3")
+          ]
+        , [ DebugTryFinally(
+              [ DebugEventCall(
+                  "enter"
+                , FunctionArguments([String("\"alng_scripts/var_use.alng\""), String("\"10,4,19,4\""), String("\"foo\"")])
+                )
+              , Declaration(Type("Integer"), "integer", Some(Int("3")))
+              , Declaration(
+                  Type("Integer")
+                , "result"
+                , Some(Times(Var("integer"), Int("5")))
+                )
+              , Declaration(Type("Boolean"), "b", Some(Bool("false")))
+              , IfElse(
+                  Var("b")
+                , [ExprStatement(FunctionCall(Some(Var("this")), "baz", FunctionArguments([])))]
+                , [ExprStatement(GlobalCall("bar", FunctionArguments([])))]
+                )
+              ]
+            , [DebugEventCall(
+                 "exit"
+               , FunctionArguments([String("\"alng_scripts/var_use.alng\""), String("\"10,4,19,4\""), String("\"foo\"")])
+               )]
+            )
+          ]
+        )
+      , FunctionDecl(
+          Type("String")
+        , "baz"
+        , []
+        , [ DebugTryFinally(
+              [ DebugEventCall(
+                  "enter"
+                , FunctionArguments([String("\"alng_scripts/var_use.alng\""), String("\"21,4,24,4\""), String("\"baz\"")])
+                )
+              , ExprStatement(GlobalCall("print", FunctionArguments([String("\"User:\"")])))
+              , ReturnValue(String("\"BAZ\""))
+              ]
+            , [DebugEventCall(
+                 "exit"
+               , FunctionArguments([String("\"alng_scripts/var_use.alng\""), String("\"21,4,24,4\""), String("\"baz\"")])
+               )]
+            )
+          ]
+        )
+      ]
+    )
+  , FunctionDeclVoid(
+      "bar"
+    , []
+    , [ DebugTryFinally(
+          [ DebugEventCall(
+              "enter"
+            , FunctionArguments([String("\"alng_scripts/var_use.alng\""), String("\"27,0,32,0\""), String("\"bar\"")])
+            )
+          , ExprStatement(GlobalCall("print", FunctionArguments([String("\"Global print FFFFFFF g\"")])))
+          , Declaration(Type("User"), "u", Some(NewEntity(Type("User"))))
+          , Declaration(
+              Type("String")
+            , "a"
+            , Some(FunctionCall(Some(Var("u")), "baz", FunctionArguments([])))
+            )
+          , ExprStatement(GlobalCall("print", FunctionArguments([Var("a")])))
+          ]
+        , [DebugEventCall(
+             "exit"
+           , FunctionArguments([String("\"alng_scripts/var_use.alng\""), String("\"27,0,32,0\""), String("\"bar\"")])
+           )]
+        )
+      ]
+    )
+  , FunctionDecl(
+      Type("Integer")
+    , "bar2"
+    , [Argdef(Type("Integer"), "thing")]
+    , [ DebugTryFinally(
+          [ DebugEventCall(
+              "enter"
+            , FunctionArguments([String("\"alng_scripts/var_use.alng\""), String("\"34,0,37,0\""), String("\"bar2\"")])
+            )
+          , ExprStatement(GlobalCall("print", FunctionArguments([Plus(String("\"Print thing: \""), Var("thing"))])))
+          , ReturnValue(Int("2"))
+          ]
+        , [DebugEventCall(
+             "exit"
+           , FunctionArguments([String("\"alng_scripts/var_use.alng\""), String("\"34,0,37,0\""), String("\"bar2\"")])
+           )]
+        )
+      ]
+    )
+  , Entity(
+      "BlogPosting"
+    , [Property("poster", Type("User")), Property("body", Type("String"))]
+    )
+  , Entity("URL", [Property("location", Type("String"))])
+  ]
+)

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<project name="org.languages.alng.jar_tests" default="update-jars" basedir=".">
+
+	<property name="lib.dsldi.dir" location="lib/instrumentation" />
+	<property name="lib.actionlanguage.dir" location="lib/actionlanguage" />
+	<property name="lib.runtime.dir" location="lib/runtime" />
+
+	<loadproperties srcFile="config.properties" />
+	<import file="build.libs.xml"/>
+
+	<target name="copy-actionlanguage-jars">
+		<mkdir dir="${lib.actionlanguage.dir}" />
+		<copy todir="${lib.actionlanguage.dir}" preservelastmodified="true" overwrite="true">
+			<fileset file="${actionlanguage.project}/include/actionlanguage-java.jar" />
+			<fileset file="${actionlanguage.project}/include/actionlanguage.jar" />
+		</copy>
+	</target>
+	<target name="build-actionlanguage-jars" if="build.libraries">
+		<ant antfile="${actionlanguage.project}/build.main.xml" target="all" dir="${actionlanguage.project}" />
+	</target>
+	
+	<target name="copy-actionlanguage-runtime">
+        <copy todir="${lib.runtime.dir}" preservelastmodified="true" overwrite="true">
+            <fileset dir="${actionlanguage.runtime.project}/build/jar" />
+        </copy>
+	</target>
+
+	<!--<target name="update-actionlanguage-jars" depends="build-actionlanguage-jars,copy-actionlanguage-jars">-->
+	<target name="update-actionlanguage-jars" depends="copy-actionlanguage-jars, copy-actionlanguage-runtime">
+		<description>Get all the required jars from the org.languages.alng.editor project</description>
+	</target>
+
+	<target name="update-jars" depends="update-libraries,update-actionlanguage-jars" />
+
+</project>

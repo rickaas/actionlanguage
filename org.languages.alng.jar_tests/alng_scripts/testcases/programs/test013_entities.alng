@@ -1,0 +1,30 @@
+module entities
+
+main bar;
+
+entity User {
+    name     : String
+
+    function void sayHelloTo(User u) {
+    	String otherName := u.name;
+        system.print("Hello:" + otherName);
+        sayMyName();
+        system.print("Goodbye!");
+    }
+    
+    function void sayMyName() {
+    	system.print("My name is " + name);
+    }
+}
+
+function void bar()
+{
+    User u1 := new User;
+    u1.name := "User1";
+    User u2 := new User;
+    u2.name := "User2";
+    
+    u1.sayHelloTo(u2);
+
+    return;
+}

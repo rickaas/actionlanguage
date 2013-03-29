@@ -1,0 +1,342 @@
+module generate
+
+imports
+  libstratego-lib
+  libstratego-gpp
+  libstratego-aterm
+  include/ActionLanguage
+  lib/editor-common.generated
+  
+imports
+    generate-exp
+
+strategies 
+    
+    get-module-name:
+        Module(name, _) -> name
+    
+strategies
+//   try-to-java = debug(!"TRY-TO-JAVA: "); to-java +> debug(!"Could not generate java for: ")
+    try-to-java = 
+        //debug(!"TRY-TO-JAVA: "); 
+        gen-x
+
+    gen-x: 
+        Module(name, defs*) -> 
+        $[package org.languages.alng.programs.[name];
+        
+          import org.languages.alng.runtime.*;
+          // Main entry point
+              [main-class]
+          // entity definitions
+          
+              [entity-defs*]
+          
+          // global funtion definitions
+              [global-function-defs]
+        ]
+        where
+            //debug(!"Generate Module") ;
+            // collect all also finds nested aterm
+            entity-defs* := <filter(is-entity); map(gen-entity)> defs*
+            ; global-function-defs := <filter(is-function); gen-global-function> defs*
+            //; main-entry := <oncetd(is-main-entry)> defs* +> !$< // No main defined >
+            //; main-entry := <collect-one(maybe(s)is-main-entry); gen-main-method> defs* +> None();gen-main-method
+            ; !defs*; filter(is-main-entry); ?[m]; !m
+            //; main-entry := <(debug; filter(debug(!"BOO: "); is-main-entry;debug(!"F")); debug(!""); ?[m]; !m) +> !None() > defs*
+            //; debug(!"PPPPPPP      :")
+            ; main-class := <gen-main-method> m
+            //; main-class := "foo"
+
+    
+    // all global functions (functions that are not defined in the scope of an entity)
+    // are placed in a single class called GlobalFunctions.
+    // In ActionLanguage code you can call a global function using "global.func_name"
+    // Where func_name is a predefined system function or a user defined global function.
+    gen-global-function:
+        global-functions* ->
+        $[class GlobalFunctions extends SystemFunctions {
+              // extending SystemFunctions, which is available in the org.languages.alng.runtime package
+              public static GlobalFunctions instance = null;
+              
+              public static void create()
+              {
+                  instance = new GlobalFunctions();
+              }
+              
+              // START: global functions:
+              [function-defs*]
+              // END: global functions
+          }
+          ]
+        where
+            function-defs* := <map(gen-function)> global-functions*
+
+    // Only matches Entity, returns id
+    is-entity:
+        Entity(_, _) -> <id>
+
+    // generate a class for the Entity
+    // the class consists of properties and entity-functions
+    gen-entity:
+        Entity(name, defs*) ->
+        $[// Entity [name]
+          class [name]
+          {
+              // entity properties
+              [prop-defs*]
+              // entity functions
+              [entity-functions*]
+              
+              [entity-to-string]
+          }
+          ]
+        where
+            //debug(!"Generate entity") ;
+            prop-defs* := <collect-all(is-property); map(gen-property)> defs*
+            ; entity-functions* := <collect-all(is-function); map(gen-function)> defs*
+            ; entity-to-string := <collect-all(is-property); gen-entity-to-string> defs*
+    
+    get-property-name :
+        Property(x, Type(t)) -> x
+    
+    gen-entity-to-string :
+        prop-defs* ->
+        $[// use all property values
+          public String toString() {
+              String s = "";
+              [expr*]
+              return s;
+          }
+          ]
+          where
+              expr* := <map(gen-to-string-for-property)> prop-defs*
+              
+    gen-to-string-for-property :
+        Property(x, Type(t)) -> 
+        $[if ([x] != null) s += [x].toString() + " ";
+          ]
+    
+    is-function:
+        FunctionDeclVoid(_, _, _) -> <id>
+
+    is-function:
+        FunctionDecl(_, _, _, _) -> <id>
+
+    // generate a void method (used by global and entity functions)
+    gen-function:
+        FunctionDeclVoid(name, def-args*, statements*) ->
+        $[// function [name]
+          public void [name]([method-args*]) {
+              [gen-statements*]
+          }
+          ]
+        where
+            //debug(!"Generate function") ;
+            method-args1* := <map(gen-arg-def)> def-args*
+            ; method-args* := <separate-by> ($[, ], method-args1*)
+            //; debug(!"ARGS: ")
+            ; gen-statements* := <map(gen-statement)> statements*
+    
+    // generate a method with a return type (used by global and entity functions)
+    gen-function:
+        FunctionDecl(Type(t), name, def-args*, statements*) ->
+        $[// function [name]
+          public [t] [name]([method-args*]) {
+              [gen-statements*]
+          }
+          ]
+        where
+            //debug(!"Generate function") ;
+            method-args1* := <map(gen-arg-def)> def-args*
+            ; method-args* := <separate-by> ($[, ], method-args1*)
+            //; debug(!"ARGS: ")
+            ; gen-statements* := <map(gen-statement)> statements*
+
+    // generate a method argument (Type argname)
+    gen-arg-def :
+        Argdef(Type(type), name) ->
+        $[[type] [name]]
+        
+rules
+    
+
+  is-property:
+    Property(_, _) -> <id>
+    
+  // generate an attribute with getter and setter methods
+  gen-property:
+    Property(x, Type(t)) -> $[
+      private [t] [x];
+      
+      public [t] get_[x]() {
+          return [x];
+      }
+      
+      public void set_[x] ([t] [x]) {
+          this.[x] = [x];    
+      }
+  ]
+
+rules
+
+  gen-statement = //debug(!"Generating statement: "); 
+    internal-gen-statement <+ debug(!"gen-statement- Failed at: ")
+  
+rules
+    // generate a variable declaration with initial value statement
+    internal-gen-statement:
+        Declaration(Type(t), name, Some(expr)) -> 
+        $[// declaration statement
+          [t] [ref] = [expr'];
+          ]
+         where
+             ref := name
+             ; expr' := <gen-expr> expr
+             
+    // generate a variable declaration statement
+    internal-gen-statement:
+        Declaration(Type(t), name, None()) -> 
+        $[// declaration statement
+          [t] [ref];
+         ]
+         where
+             ref := name
+             
+    // generate an if-else statement
+    internal-gen-statement:
+        IfElse(expr, true-statements*, false-statements*) -> 
+        $[// if-statement
+          if ([expr']) {
+              [true-statements'*]
+          } else {
+              [false-statements'*]
+          }
+         ]
+	    where
+	      true-statements'* := <map(gen-statement)> true-statements*
+	      ; false-statements'* := <map(gen-statement)> false-statements*
+	      ; expr' := <gen-expr> expr
+        
+  // generate an if-statement
+  internal-gen-statement:
+      If(expr, true-statements*) -> 
+      $[// if-statement
+        if ([expr']) {
+            [true-statements'*]
+        }
+       ]
+    where
+      true-statements'* := <map(gen-statement)> true-statements*
+      ; expr' := <gen-expr> expr
+
+    // empty return statement
+    internal-gen-statement:
+        Return() ->
+        $[return;
+          ]
+    // return a value
+    internal-gen-statement:
+        ReturnValue(expr) ->
+        $[return [expr'];
+          ]
+        where
+            expr' := <gen-expr> expr
+            
+            
+    
+    internal-gen-statement:
+        StatementBlock(statements*)->
+        $[{
+              [s*]
+          }
+          ]
+        where s* := <map(gen-statement)> statements*
+
+    internal-gen-statement:
+	    TryFinally(try-s*, finally-s*)->
+	      $[try {
+	            [try-s'*]
+	        } finally {
+	            [finally-s'*]
+	        }
+	        ]
+	    where try-s'* := <map(gen-statement)> try-s*
+	    ; finally-s'* := <map(gen-statement)> finally-s*
+
+    internal-gen-statement:
+        While(expr, s*) ->
+        $[while([expr']) {
+              [s'*]
+          }
+          ]
+        where expr':= <gen-expr> expr
+        ; s'* := <map(gen-statement)> s*
+        
+    internal-gen-statement:
+        ExprStatement(expr) ->
+        $[[expr'];
+          ]
+        where expr' := <gen-expr> expr
+        
+        
+      // generate a variable assignment statement
+    internal-gen-statement:
+        AssignVar(varname, val) -> 
+        $[[varname'] = [val'];
+          ]
+        where
+           varname' := varname
+           ; val' := <gen-expr> val
+             
+      // generate a property assignment statement
+    internal-gen-statement:
+        AssignProperty(PropertyAccess(expr, propertyName), val) -> 
+        $[[expr'].set_[propertyName']([val']);
+          ]
+        where
+           expr' := <gen-expr> expr
+           ; propertyName' := propertyName
+           ; val' := <gen-expr> val
+             
+rules
+    
+    gen-function-arguments:
+        FunctionArguments(expr*) ->
+        $[([arg-values*])]
+        where
+            arg-values'* := <map(gen-arg-value)> expr*
+            ; arg-values* := <separate-by> ($[, ], arg-values'*)
+              
+    gen-arg-value:
+        x -> <gen-expr> x
+        
+
+rules // main method
+    
+    gen-main-method:
+        None() -> $< // No main defined >
+            
+    is-main-entry:
+        Main(_) -> <id>
+//        where
+//            debug(!"IS_MAIN" )
+        
+    // generate the java Main method
+    gen-main-method:
+      Main(main-method-name) -> 
+    $<public class Output {
+        public static void main(String[] args) {
+          //System.out.println(42); // the answer to the universe...
+          ApplicationEnvironment.init();
+          GlobalFunctions.create();
+
+          // start the main function
+          <main-statement>
+          //System.exit(0);
+        }
+      }
+      >
+    where
+        main-statement := <gen-statement> ExprStatement(GlobalCall(main-method-name, FunctionArguments([])))
+
