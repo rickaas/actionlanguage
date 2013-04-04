@@ -69,25 +69,15 @@
     <!-- Main target -->
     <target name="all" depends="update-libs, spoofaximp.default.jar"/>
 	
-	<property name="interfaces.jar" location="../org.spoofax.debug.interfaces.java/build/jar/org.spoofax.debug.interfaces.java.jar" />
-	<property name="interfaces.java.jar" location="../org.spoofax.debug.interfaces/build/jar/org.spoofax.debug.interfaces.jar" />
 	<property name="alngruntime.jar" location="../org.languages.alng.runtime/build/jar/alngruntime.jar" />
 	
-	<target name="update.alngruntime.jars">
-		<copy 
-			file="${interfaces.jar}" 
-			todir="lib/runtime"/>
-      <copy 
-            file="${interfaces.java.jar}" 
-            todir="lib/runtime"/>
+	<target name="copy-alngruntime-jars">
         <copy 
             file="${alngruntime.jar}" 
             todir="lib/runtime"/>
-
-			
 	</target>
 	
-	<target name="update-libs" depends="copy-dsldi-jars, copy-dsldi-rtree">
+	<target name="update-libs" depends="copy-dsldi-jars, copy-dsldi-rtree, copy-alngruntime-jars">
 	</target>
 	
 	<property name="lib.dsldi.dir" location="utils" />
