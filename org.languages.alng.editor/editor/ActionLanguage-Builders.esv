@@ -25,6 +25,8 @@ builders
   builder : "Run Program" = run-program (openeditor) (source)// runs the program as-is
   builder : "Debug Program" = debug-program (openeditor) (source) (meta) // instruments the program with debug-information and then runs it
 
+  builder : "Position" = find-position (source)
+
 refactorings
 
   pretty-print : pp-actionlanguage-string
