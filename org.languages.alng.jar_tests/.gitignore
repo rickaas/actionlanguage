@@ -1,3 +1,4 @@
+/bin
 *.jar
 *.rtree
 /gen-code
